@@ -1,0 +1,13 @@
+{
+  "name": "apfelclient-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ApfelClient license server (zero dependencies)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
