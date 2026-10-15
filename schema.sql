@@ -13,7 +13,9 @@ create table if not exists users (
   open_request_type text,
   open_request_at bigint,
   reset_month text,
-  resets_used integer not null default 0
+  resets_used integer not null default 0,
+  must_change_pw boolean not null default false,
+  discord_id text
 );
 
 create table if not exists tokens (

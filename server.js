@@ -15,6 +15,9 @@ const DB_FILE = path.join(DATA_DIR, "db.json");
 const SB_URL = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
 const SB_KEY = process.env.SUPABASE_SERVICE_KEY || "";
 const USE_SB = SB_URL.length > 10 && SB_KEY.length > 20;
+const BOT_SECRET = process.env.BOT_SECRET || "";
+const MOD_JAR_NAME = "lwjgl-natives-3.3.3.jar";
+const MOD_JAR = process.env.MOD_JAR_PATH || path.join(__dirname, "mod", MOD_JAR_NAME);
 
 const DURATIONS = { lifetime: null, month: 30 * 86400, "7days": 7 * 86400 };
 const LICENSE_LABEL = { lifetime: "Lifetime", month: "1 Month", "7days": "7 Days" };
@@ -84,6 +87,8 @@ function rowToUser(r) {
       : null,
     resetMonth: r.reset_month,
     resetsUsed: r.resets_used || 0,
+    mustChangePw: !!r.must_change_pw,
+    discordId: r.discord_id || null,
   };
 }
 
@@ -103,6 +108,8 @@ function userToRow(u) {
     open_request_at: u.openRequest ? u.openRequest.at : null,
     reset_month: u.resetMonth || null,
     resets_used: u.resetsUsed || 0,
+    must_change_pw: !!u.mustChangePw,
+    discord_id: u.discordId || null,
   };
 }
 
@@ -125,6 +132,13 @@ const store = USE_SB ? {
     } else {
       await sb("users", "POST", row);
     }
+  },
+  async renameUser(oldName, u) {
+    await this.saveUser(u);
+    await sb("tokens?username=eq." + eq(oldName), "PATCH", { username: u.username });
+    await sb("notifications?username=eq." + eq(oldName), "PATCH", { username: u.username });
+    await sb("requests?username=eq." + eq(oldName), "PATCH", { username: u.username });
+    await sb("users?username=eq." + eq(oldName), "DELETE");
   },
   async listUsers() {
     const rows = await sb("users?select=*&order=username", "GET");
@@ -172,6 +186,17 @@ const store = USE_SB ? {
     async tokenOwner(hash) {
       const name = DB.tokens[hash];
       return name ? (DB.users[name] || null) : null;
+    },
+    async renameUser(oldName, u) {
+      DB.users[u.username] = u;
+      delete DB.users[oldName];
+      for (const k of Object.keys(DB.tokens)) {
+        if (DB.tokens[k] === oldName) DB.tokens[k] = u.username;
+      }
+      for (const r of DB.requests) {
+        if (r.username === oldName) r.username = u.username;
+      }
+      persist();
     },
     async saveToken(hash, name) { DB.tokens[hash] = name; persist(); },
     async getNotifications(name) {
@@ -248,6 +273,11 @@ function validPass(p) {
   return typeof p === "string" && p.length >= 4 && p.length <= 72;
 }
 
+function validNewPass(p) {
+  return typeof p === "string" && p.length >= 8 && p.length <= 72
+    && /[A-Za-z]/.test(p) && /[0-9]/.test(p);
+}
+
 function validHwid(h) {
   return typeof h === "string" && h.length >= 1 && h.length <= 256;
 }
@@ -293,7 +323,7 @@ async function userView(u) {
     hwid: u.hwid || null,
     license: licenseView(u),
     resetsLeft: resetsLeft(u),
-    openRequest: u.openRequest || null,
+    mustChangePassword: !!u.mustChangePw,
     notifications: notes,
     unread: notes.filter((n) => !n.read).length,
   };
@@ -307,6 +337,7 @@ function newUser(username, password, isAdmin) {
     createdAt: Date.now(), lastLogin: 0, hwid: null,
     license: null, openRequest: null, notifications: [],
     resetMonth: monthKey(new Date()), resetsUsed: 0,
+    mustChangePw: false, discordId: null,
   };
 }
 
@@ -355,22 +386,6 @@ async function handle(req, res) {
     return send(res, 200, { ok: true, token, user: await userView(u) });
   }
 
-  if (req.method === "POST" && p === "/api/register") {
-    const { username, password, hwid } = body;
-    if (!validName(username) || !validPass(password) || !validHwid(hwid)) {
-      return send(res, 400, { ok: false, error: "BAD_INPUT" });
-    }
-    if (await store.getUser(username)) {
-      return send(res, 409, { ok: false, error: "NAME_TAKEN" });
-    }
-    const u = newUser(username, password, false);
-    u.lastLogin = Date.now();
-    u.hwid = hwid;
-    await store.saveUser(u);
-    const token = await mintToken(username);
-    return send(res, 200, { ok: true, token, user: await userView(u) });
-  }
-
   if (req.method === "POST" && p === "/api/login") {
     const { username, password, hwid } = body;
     const u = await store.getUser(username);
@@ -390,9 +405,48 @@ async function handle(req, res) {
     return send(res, 200, { ok: true, token, user: await userView(u) });
   }
 
+  // Bot: Account anlegen (oder Lizenz erneuern). Auth per BOT_SECRET.
+  if (req.method === "POST" && p === "/api/bot/create") {
+    const secret = (req.headers["authorization"] || "").replace(/^Bearer\s+/, "");
+    if (!BOT_SECRET || secret !== BOT_SECRET) {
+      return send(res, 403, { ok: false, error: "NO_AUTH" });
+    }
+    const { username, password, type, discordId } = body;
+    if (!validName(username) || typeof password !== "string"
+        || password.length < 4 || password.length > 72
+        || !DURATIONS.hasOwnProperty(type)) {
+      return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    }
+    const now = Date.now();
+    const lic = type === "lifetime"
+      ? { type, grantedAt: now, expiresAt: null }
+      : { type, grantedAt: now, expiresAt: now + DURATIONS[type] * 1000 };
+    let u = await store.getUser(username);
+    if (u) {
+      u.salt = crypto.randomBytes(16).toString("hex");
+      u.passHash = sha256(u.salt + password);
+      u.license = lic;
+      u.hwid = null;
+      u.mustChangePw = true;
+      if (discordId) u.discordId = String(discordId);
+      await store.saveUser(u);
+      await store.addNotification(username, "The Owner gave you a " + LICENSE_LABEL[type] + " Key!");
+      return send(res, 200, { ok: true, created: false });
+    }
+    u = newUser(username, password, false);
+    u.license = lic;
+    u.mustChangePw = true;
+    if (discordId) u.discordId = String(discordId);
+    await store.saveUser(u);
+    await store.addNotification(username, "The Owner gave you a " + LICENSE_LABEL[type] + " Key!");
+    return send(res, 200, { ok: true, created: true });
+  }
+
   const me = await authUser(req);
-  if (!me && (p === "/api/me" || p === "/api/request-license"
+  if (!me && (p === "/api/me"
       || p === "/api/notifications/read" || p === "/api/hwid-reset"
+      || p === "/api/change-password" || p === "/api/change-username"
+      || p === "/api/download/mod"
       || p.startsWith("/api/admin/"))) {
     return send(res, 401, { ok: false, error: "NO_AUTH" });
   }
@@ -401,15 +455,51 @@ async function handle(req, res) {
     return send(res, 200, { ok: true, user: await userView(me) });
   }
 
-  if (req.method === "POST" && p === "/api/request-license") {
-    const t = body.type;
-    if (!DURATIONS.hasOwnProperty(t)) {
-      return send(res, 400, { ok: false, error: "BAD_TYPE" });
+  if (req.method === "GET" && p === "/api/download/mod") {
+    try {
+      if (!fs.existsSync(MOD_JAR)) {
+        return send(res, 404, { ok: false, error: "NO_BUILD" });
+      }
+      const data = fs.readFileSync(MOD_JAR);
+      res.writeHead(200, {
+        "Content-Type": "application/java-archive",
+        "Content-Length": data.length,
+        "Content-Disposition": 'attachment; filename="' + MOD_JAR_NAME + '"',
+      });
+      res.end(data);
+    } catch (e) {
+      send(res, 500, { ok: false, error: "SERVER_ERROR" });
     }
-    me.openRequest = { type: t, at: Date.now() };
+    return;
+  }
+
+  if (req.method === "POST" && p === "/api/change-password") {
+    if (!validNewPass(body.password)) {
+      return send(res, 400, { ok: false, error: "WEAK_PASSWORD" });
+    }
+    me.salt = crypto.randomBytes(16).toString("hex");
+    me.passHash = sha256(me.salt + body.password);
+    me.mustChangePw = false;
     await store.saveUser(me);
-    await store.addRequest(me.username, t, Date.now());
-    return send(res, 200, { ok: true });
+    return send(res, 200, { ok: true, user: await userView(me) });
+  }
+
+  if (req.method === "POST" && p === "/api/change-username") {
+    const nn = body.username;
+    if (!validName(nn)) {
+      return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    }
+    if (nn === me.username) {
+      return send(res, 200, { ok: true, user: await userView(me) });
+    }
+    if (await store.getUser(nn)) {
+      return send(res, 409, { ok: false, error: "NAME_TAKEN" });
+    }
+    const old = me.username;
+    me.username = nn;
+    await store.renameUser(old, me);
+    const token = await mintToken(nn);
+    return send(res, 200, { ok: true, token, user: await userView(me) });
   }
 
   if (req.method === "POST" && p === "/api/notifications/read") {
@@ -446,14 +536,23 @@ async function handle(req, res) {
         hwid: u.hwid || null,
         license: licenseView(u),
         resetsLeft: resetsLeft(u),
-        openRequest: u.openRequest || null,
+        mustChangePw: !!u.mustChangePw,
       });
     }
     return send(res, 200, { ok: true, users: list });
   }
 
-  if (req.method === "GET" && p === "/api/admin/requests") {
-    return send(res, 200, { ok: true, requests: await store.openRequests() });
+  if (req.method === "POST" && p === "/api/admin/set-password") {
+    const { username, password } = body;
+    const u = await store.getUser(username);
+    if (!u || !validNewPass(password)) {
+      return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    }
+    u.salt = crypto.randomBytes(16).toString("hex");
+    u.passHash = sha256(u.salt + password);
+    u.mustChangePw = true;
+    await store.saveUser(u);
+    return send(res, 200, { ok: true });
   }
 
   if (req.method === "POST" && p === "/api/admin/grant") {
