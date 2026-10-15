@@ -140,6 +140,12 @@ const store = USE_SB ? {
     await sb("requests?username=eq." + eq(oldName), "PATCH", { username: u.username });
     await sb("users?username=eq." + eq(oldName), "DELETE");
   },
+  async deleteUser(name) {
+    await sb("tokens?username=eq." + eq(name), "DELETE");
+    await sb("notifications?username=eq." + eq(name), "DELETE");
+    await sb("requests?username=eq." + eq(name), "DELETE");
+    await sb("users?username=eq." + eq(name), "DELETE");
+  },
   async listUsers() {
     const rows = await sb("users?select=*&order=username", "GET");
     return rows.map(rowToUser);
@@ -196,6 +202,14 @@ const store = USE_SB ? {
       for (const r of DB.requests) {
         if (r.username === oldName) r.username = u.username;
       }
+      persist();
+    },
+    async deleteUser(name) {
+      delete DB.users[name];
+      for (const k of Object.keys(DB.tokens)) {
+        if (DB.tokens[k] === name) delete DB.tokens[k];
+      }
+      DB.requests = DB.requests.filter((r) => r.username !== name);
       persist();
     },
     async saveToken(hash, name) { DB.tokens[hash] = name; persist(); },
@@ -581,6 +595,15 @@ async function handle(req, res) {
     u.license = null;
     await store.saveUser(u);
     await store.addNotification(body.username, "Your license was revoked by the Owner.");
+    return send(res, 200, { ok: true });
+  }
+
+  if (req.method === "POST" && p === "/api/admin/delete") {
+    const u = await store.getUser(body.username);
+    if (!u || u.username === me.username || u.isAdmin) {
+      return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    }
+    await store.deleteUser(u.username);
     return send(res, 200, { ok: true });
   }
 
