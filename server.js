@@ -381,6 +381,20 @@ async function handle(req, res) {
     return send(res, 200, { ok: true, users: await store.usersCount(), db: USE_SB ? "supabase" : "json" });
   }
 
+  if (req.method === "GET" && p === "/api/version") {
+    try {
+      const v = JSON.parse(fs.readFileSync(path.join(__dirname, "version.json"), "utf8"));
+      return send(res, 200, {
+        ok: true,
+        mod: String(v.mod || ""),
+        launcher: String(v.launcher || ""),
+        launcherUrl: String(v.launcherUrl || ""),
+      });
+    } catch (e) {
+      return send(res, 200, { ok: true, mod: "", launcher: "", launcherUrl: "" });
+    }
+  }
+
   const body = req.method === "POST" ? await readBody(req) : {};
   if (req.method === "POST" && body === null) {
     return send(res, 400, { ok: false, error: "BAD_JSON" });
