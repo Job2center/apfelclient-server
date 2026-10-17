@@ -249,6 +249,65 @@ const store = USE_SB ? {
 
 /* ---------------- helpers ---------------- */
 
+// Giveaway (in-memory; ein Giveaway gleichzeitig).
+let giveawayState = null;
+// { type, durationMin, maxWinners, startsAt, endsAt, joined: [names], status: "active"|"ended", winners: [names] }
+
+function giveawayView(username) {
+  if (!giveawayState) return { ok: true, giveaway: null };
+  const g = giveawayState;
+  const active = g.status === "active" && Date.now() < g.endsAt;
+  return {
+    ok: true,
+    giveaway: {
+      type: g.type,
+      label: LICENSE_LABEL[g.type],
+      status: active ? "active" : g.status,
+      startsAt: g.startsAt,
+      endsAt: g.endsAt,
+      endsIn: Math.max(0, g.endsAt - Date.now()),
+      maxWinners: g.maxWinners,
+      joinedCount: g.joined.length,
+      hasJoined: g.joined.indexOf(username) !== -1,
+      winners: g.status === "ended" ? g.winners : undefined,
+    },
+  };
+}
+
+async function finalizeGiveaway() {
+  const g = giveawayState;
+  if (!g || g.status === "ended") return;
+  g.status = "ended";
+  g.endedAt = Date.now();
+  const pool = g.joined.slice();
+  const winners = [];
+  const n = Math.min(g.maxWinners, pool.length);
+  for (let i = 0; i < n; i++) {
+    winners.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  }
+  g.winners = winners;
+  const now = Date.now();
+  for (const name of winners) {
+    const u = await store.getUser(name);
+    if (!u) continue;
+    if (g.type === "lifetime") {
+      u.license = { type: "lifetime", grantedAt: now, expiresAt: null };
+    } else {
+      const base = Math.max(now, (u.license && u.license.expiresAt) || 0);
+      u.license = { type: g.type, grantedAt: now, expiresAt: base + DURATIONS[g.type] * 1000 };
+    }
+    await store.saveUser(u);
+    await store.addNotification(name, "You won a " + LICENSE_LABEL[g.type] + " Key in the Giveaway!");
+  }
+}
+
+async function maybeFinalizeGiveaway() {
+  if (giveawayState && giveawayState.status === "active" && Date.now() >= giveawayState.endsAt) {
+    await finalizeGiveaway();
+  }
+}
+
+
 function send(res, code, obj) {
   const body = JSON.stringify(obj);
   res.writeHead(code, {
@@ -475,6 +534,7 @@ async function handle(req, res) {
       || p === "/api/notifications/read" || p === "/api/hwid-reset"
       || p === "/api/change-password" || p === "/api/change-username"
       || p === "/api/download/mod"
+      || p === "/api/giveaway" || p === "/api/giveaway/join"
       || p.startsWith("/api/admin/"))) {
     return send(res, 401, { ok: false, error: "NO_AUTH" });
   }
@@ -548,8 +608,54 @@ async function handle(req, res) {
     return send(res, 200, { ok: true, resetsLeft: resetsLeft(me) });
   }
 
+  // Giveaway (alle eingeloggten User)
+  if (req.method === "GET" && p === "/api/giveaway") {
+    await maybeFinalizeGiveaway();
+    return send(res, 200, giveawayView(me.username));
+  }
+
+  if (req.method === "POST" && p === "/api/giveaway/join") {
+    await maybeFinalizeGiveaway();
+    const g = giveawayState;
+    if (!g || g.status !== "active" || Date.now() >= g.endsAt) {
+      return send(res, 400, { ok: false, error: "NO_GIVEAWAY" });
+    }
+    if (g.joined.indexOf(me.username) === -1) g.joined.push(me.username);
+    return send(res, 200, giveawayView(me.username));
+  }
+
   if (p.startsWith("/api/admin/") && !me.isAdmin) {
     return send(res, 403, { ok: false, error: "NOT_ADMIN" });
+  }
+
+  // Giveaway starten (Admin)
+  if (req.method === "POST" && p === "/api/admin/giveaway/start") {
+    await maybeFinalizeGiveaway();
+    if (giveawayState && giveawayState.status === "active" && Date.now() < giveawayState.endsAt) {
+      return send(res, 400, { ok: false, error: "GIVEAWAY_ACTIVE" });
+    }
+    const { type, durationMin, maxWinners } = body;
+    if (!DURATIONS.hasOwnProperty(type)) {
+      return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    }
+    const dur = Math.max(1, Math.min(24 * 60, Math.round(Number(durationMin) || 60)));
+    const mw = Math.max(1, Math.min(100, Math.round(Number(maxWinners) || 1)));
+    const now = Date.now();
+    giveawayState = {
+      type, durationMin: dur, maxWinners: mw,
+      startsAt: now, endsAt: now + dur * 60000,
+      joined: [], status: "active", winners: [],
+    };
+    return send(res, 200, giveawayView(me.username));
+  }
+
+  // Giveaway sofort beenden + Gewinner ziehen (Admin)
+  if (req.method === "POST" && p === "/api/admin/giveaway/end") {
+    if (!giveawayState || giveawayState.status !== "active") {
+      return send(res, 400, { ok: false, error: "NO_GIVEAWAY" });
+    }
+    await finalizeGiveaway();
+    return send(res, 200, giveawayView(me.username));
   }
 
   if (req.method === "GET" && p === "/api/admin/users") {
