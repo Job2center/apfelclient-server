@@ -1,6 +1,17 @@
 {
   "entries": [
-            {
+                {
+      "version": "1.6.19",
+      "date": "2026-10-18",
+      "title": "Mod 1.6.19",
+      "tags": ["fix"],
+      "changed": [
+        "Punkt neben abweichenden Einstellungen (GUI V1) vorerst deaktiviert"
+      ],
+      "fixed": [
+        "Start und GUI-Oeffnen stabil - keine Injection in abstrakte Methoden mehr"
+      ]
+    },{
       "version": "1.6.18",
       "date": "2026-10-18",
       "title": "Mod 1.6.18",
