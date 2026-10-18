@@ -1,6 +1,17 @@
 {
   "entries": [
-        {
+            {
+      "version": "1.6.18",
+      "date": "2026-10-18",
+      "title": "Mod 1.6.18",
+      "tags": ["fix"],
+      "changed": [
+        "Punkt neben abweichenden Einstellungen wird jetzt in allen konkreten Widget-Klassen gezeichnet"
+      ],
+      "fixed": [
+        "GUI liess sich nicht mehr oeffnen: der Setting-Mixin zielte auf eine abstrakte Methode ohne Bytecode und liess die komplette Klasse crashen"
+      ]
+    },{
       "version": "1.6.17",
       "date": "2026-10-18",
       "title": "Mod 1.6.17",
