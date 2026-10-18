@@ -78,7 +78,8 @@
     },{
       "version": "1.1.5",
       "date": "2026-10-18",
-      "title": "Launcher 1.1.5",
+      "title": "Launcher 1.1.5 (empfohlene Version)",
+      "note": "Diese Version laeuft ohne Selbst-Update und bekommt den festen Link. Wer eine neuere 1.1.x hat, kann sie behalten - das Update-System wird nicht mehr genutzt.",
       "tags": ["neu"],
       "changed": [
         "Dashboard als Tabs: Uebersicht, Updates, Giveaway, Mod & Profile, Konto, Admin",
