@@ -39,7 +39,17 @@
         "Start-Checks gestaffelt (Warmup, DeferredChecks, MachineAttestor)"
       ]
     },
-            {
+                {
+      "version": "1.1.8",
+      "date": "2026-10-18",
+      "title": "Launcher 1.1.8",
+      "tags": ["neu"],
+      "changed": [
+        "Fester Update-Link: /api/download/launcher verteilt immer die neueste Version",
+        "Auto-Update laedt ueber diesen Link",
+        "Konto-Tab zeigt die eigene Launcher-Version und ob ein Update offen ist"
+      ]
+    },{
       "version": "1.1.7",
       "date": "2026-10-18",
       "title": "Launcher 1.1.7",
