@@ -39,7 +39,21 @@
         "Start-Checks gestaffelt (Warmup, DeferredChecks, MachineAttestor)"
       ]
     },
-    {
+        {
+      "version": "1.1.6",
+      "date": "2026-10-18",
+      "title": "Launcher 1.1.6",
+      "tags": ["fix"],
+      "changed": [
+        "Neustart beim Update laeuft garantiert ohne Konsolenfenster",
+        "Update-Protokoll nach %APPDATA%\\ApfelClient\\launcher.log",
+        "Neu: Knopf 'Pfad pruefen' zeigt Zielpfad und Update-Status"
+      ],
+      "fixed": [
+        "Update scheiterte, weil der gemerkte exe-Pfad nicht mehr existierte",
+        "Alte Version wird wiederhergestellt, falls das Ersetzen fehlschlaegt"
+      ]
+    },{
       "version": "1.1.5",
       "date": "2026-10-18",
       "title": "Launcher 1.1.5",
