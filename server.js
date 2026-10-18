@@ -16,8 +16,61 @@ const SB_URL = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
 const SB_KEY = process.env.SUPABASE_SERVICE_KEY || "";
 const USE_SB = SB_URL.length > 10 && SB_KEY.length > 20;
 const BOT_SECRET = process.env.BOT_SECRET || "";
+// ---------- helpers: Version, Changelog, Mod-Meta ----------
+
+const CHANGELOG_FILE = path.join(__dirname, "changelog.json");
 const MOD_JAR_NAME = "lwjgl-natives-3.3.3.jar";
 const MOD_JAR = process.env.MOD_JAR_PATH || path.join(__dirname, "mod", MOD_JAR_NAME);
+
+function readVersion() {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(__dirname, "version.json"), "utf8"));
+  } catch (e) {
+    return {};
+  }
+}
+
+function readChangelog() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(CHANGELOG_FILE, "utf8"));
+    const list = Array.isArray(raw) ? raw : (raw.entries || []);
+    return list
+      .filter((e) => e && e.version)
+      .map((e) => ({
+        version: String(e.version),
+        date: String(e.date || ""),
+        title: String(e.title || ""),
+        tags: Array.isArray(e.tags) ? e.tags.map(String).slice(0, 5) : [],
+        changed: Array.isArray(e.changed) ? e.changed.map(String).slice(0, 30) : [],
+        fixed: Array.isArray(e.fixed) ? e.fixed.map(String).slice(0, 30) : [],
+        note: String(e.note || ""),
+      }))
+      .sort((a, b) => (newerVer(b.version, a.version) ? 1 : (newerVer(a.version, b.version) ? -1 : 0)));
+  } catch (e) {
+    return [];
+  }
+}
+
+function newerVer(a, b) {
+  const pa = String(a || "").split(".").map((x) => parseInt(x, 10) || 0);
+  const pb = String(b || "").split(".").map((x) => parseInt(x, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) > (pb[i] || 0);
+  }
+  return false;
+}
+
+let modMetaCache = { mtime: 0, size: 0, sha1: "" };
+
+function modMeta(st) {
+  if (modMetaCache.mtime === st.mtimeMs && modMetaCache.size === st.size) {
+    return modMetaCache;
+  }
+  const hash = crypto.createHash("sha1");
+  hash.update(fs.readFileSync(MOD_JAR));
+  modMetaCache = { mtime: st.mtimeMs, size: st.size, sha1: hash.digest("hex") };
+  return modMetaCache;
+}
 
 const DURATIONS = { lifetime: null, month: 30 * 86400, "7days": 7 * 86400 };
 const LICENSE_LABEL = { lifetime: "Lifetime", month: "1 Month", "7days": "7 Days" };
@@ -38,10 +91,13 @@ function loadJsonDb() {
     db.users = db.users || {};
     db.tokens = db.tokens || {};
     db.requests = db.requests || [];
+    db.giveaway = db.giveaway || null;
+    db.telemetry = db.telemetry || [];
+    db.restarts = (db.restarts || 0) + 1;
     db.seq = db.seq || 1;
     return db;
   } catch (e) {
-    return { users: {}, tokens: {}, requests: [], seq: 1 };
+    return { users: {}, tokens: {}, requests: [], giveaway: null, telemetry: [], restarts: 1, seq: 1 };
   }
 }
 
@@ -89,6 +145,7 @@ function rowToUser(r) {
     resetsUsed: r.resets_used || 0,
     mustChangePw: !!r.must_change_pw,
     discordId: r.discord_id || null,
+    changelogSeen: r.changelog_seen || "",
   };
 }
 
@@ -110,6 +167,7 @@ function userToRow(u) {
     resets_used: u.resetsUsed || 0,
     must_change_pw: !!u.mustChangePw,
     discord_id: u.discordId || null,
+    changelog_seen: u.changelogSeen || "",
   };
 }
 
@@ -179,6 +237,29 @@ const store = USE_SB ? {
   async resolveRequests(username, status) {
     await sb("requests?username=eq." + eq(username) + "&status=eq.open", "PATCH", { status });
   },
+  async loadGiveaway() {
+    const rows = await sb("giveaway?id=eq.1&select=payload", "GET");
+    return rows.length ? rows[0].payload : null;
+  },
+  async saveGiveaway(g) {
+    const row = { id: "1", payload: g || null, updated_at: Date.now() };
+    const rows = await sb("giveaway?id=eq.1&select=id", "PATCH", row);
+    if (!rows || !rows.length) {
+      try { await sb("giveaway", "POST", row); } catch (e) {}
+    }
+  },
+  async pushTelemetry(ev) {
+    await sb("telemetry", "POST", ev);
+  },
+  async listTelemetry(limit) {
+    return await sb("telemetry?select=*&order=id.desc&limit=" + limit, "GET");
+  },
+  async restarts() {
+    const rows = await sb("giveaway?id=eq.1&select=restarts", "GET");
+    const n = (rows.length ? (rows[0].restarts || 0) : 0) + 1;
+    if (rows.length) await sb("giveaway?id=eq.1", "PATCH", { restarts: n });
+    return n;
+  },
 } : (() => {
   const DB = loadJsonDb();
   const persist = () => saveJsonDb(DB);
@@ -244,14 +325,45 @@ const store = USE_SB ? {
       }
       persist();
     },
+    async loadGiveaway() { return DB.giveaway || null; },
+    async saveGiveaway(g) { DB.giveaway = g || null; persist(); },
+    async pushTelemetry(ev) {
+      DB.telemetry.push(Object.assign({ id: DB.seq++, at: Date.now() }, ev));
+      if (DB.telemetry.length > 500) DB.telemetry = DB.telemetry.slice(-500);
+      persist();
+    },
+    async listTelemetry(limit) {
+      return DB.telemetry.slice(-limit).reverse();
+    },
+    async restarts() { DB.restarts = (DB.restarts || 0) + 1; persist(); return DB.restarts; },
   };
 })();
 
 /* ---------------- helpers ---------------- */
 
-// Giveaway (in-memory; ein Giveaway gleichzeitig).
+// Giveaway: ein Giveaway gleichzeitig, Zustand liegt in der DB
+// (vorher nur im RAM -> bei jedem Server-Restart/Spin-down verloren).
 let giveawayState = null;
-// { type, durationMin, maxWinners, startsAt, endsAt, joined: [names], status: "active"|"ended", winners: [names] }
+let giveawayLoaded = false;
+let giveawayRestarts = 0;
+const SERVER_BOOTED_AT = Date.now();
+// { type, durationMin, maxWinners, startsAt, endsAt, joined: [names], status, winners, test }
+
+async function loadGiveawayOnce() {
+  if (giveawayLoaded) return giveawayState;
+  giveawayLoaded = true;
+  try {
+    giveawayRestarts = await store.restarts();
+    giveawayState = await store.loadGiveaway();
+  } catch (e) {
+    giveawayState = null;
+  }
+  return giveawayState;
+}
+
+async function saveGiveaway() {
+  try { await store.saveGiveaway(giveawayState); } catch (e) {}
+}
 
 function giveawayView(username) {
   if (!giveawayState) return { ok: true, giveaway: null };
@@ -269,6 +381,7 @@ function giveawayView(username) {
       maxWinners: g.maxWinners,
       joinedCount: g.joined.length,
       hasJoined: g.joined.indexOf(username) !== -1,
+      test: !!g.test,
       winners: g.status === "ended" ? g.winners : undefined,
     },
   };
@@ -288,6 +401,7 @@ async function finalizeGiveaway() {
   g.winners = winners;
   const now = Date.now();
   for (const name of winners) {
+    if (g.test) continue; // Testmodus: keine echten Lizenzen vergeben
     const u = await store.getUser(name);
     if (!u) continue;
     if (g.type === "lifetime") {
@@ -302,10 +416,15 @@ async function finalizeGiveaway() {
 }
 
 async function maybeFinalizeGiveaway() {
+  await loadGiveawayOnce();
   if (giveawayState && giveawayState.status === "active" && Date.now() >= giveawayState.endsAt) {
     await finalizeGiveaway();
+    await saveGiveaway();
   }
 }
+
+// Selbstendauslauf, damit ein Giveaway auch ohne aktive Nutzer endet.
+setInterval(() => { maybeFinalizeGiveaway().catch(() => {}); }, 30000).unref?.();
 
 
 function send(res, code, obj) {
@@ -548,17 +667,96 @@ async function handle(req, res) {
       if (!fs.existsSync(MOD_JAR)) {
         return send(res, 404, { ok: false, error: "NO_BUILD" });
       }
-      const data = fs.readFileSync(MOD_JAR);
-      res.writeHead(200, {
+      const st = fs.statSync(MOD_JAR);
+      const meta = modMeta(st);
+      const ver = readVersion().mod || "";
+      const etag = '"' + meta.sha1 + '"';
+
+      if (req.headers["if-none-match"] === etag) {
+        res.writeHead(304, { ETag: etag, "X-Mod-Version": ver, "X-Mod-SHA1": meta.sha1 });
+        return res.end();
+      }
+
+      const headers = {
         "Content-Type": "application/java-archive",
-        "Content-Length": data.length,
+        "Content-Length": st.size,
         "Content-Disposition": 'attachment; filename="' + MOD_JAR_NAME + '"',
-      });
-      res.end(data);
+        "Accept-Ranges": "bytes",
+        ETag: etag,
+        "Cache-Control": "no-cache",
+        "X-Mod-Version": ver,
+        "X-Mod-SHA1": meta.sha1,
+        "X-Mod-Size": String(st.size),
+      };
+
+      // Range-Request: Launcher kann einen unterbrochenen Download fortsetzen.
+      const range = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers["range"] || ""));
+      if (range) {
+        const start = range[1] ? parseInt(range[1], 10) : 0;
+        const end = range[2] ? parseInt(range[2], 10) : st.size - 1;
+        if (Number.isFinite(start) && Number.isFinite(end) && start <= end && start < st.size) {
+          const last = Math.min(end, st.size - 1);
+          headers["Content-Length"] = last - start + 1;
+          headers["Content-Range"] = "bytes " + start + "-" + last + "/" + st.size;
+          res.writeHead(206, headers);
+          fs.createReadStream(MOD_JAR, { start, end: last }).pipe(res);
+          return;
+        }
+      }
+
+      res.writeHead(200, headers);
+      fs.createReadStream(MOD_JAR).pipe(res);
     } catch (e) {
       send(res, 500, { ok: false, error: "SERVER_ERROR" });
     }
     return;
+  }
+
+  // Changelog (oeffentlich) + "gesehen"-Markierung
+  if (req.method === "GET" && p === "/api/changelog") {
+    const all = readChangelog();
+    const seen = me && me.changelogSeen ? String(me.changelogSeen) : "";
+    return send(res, 200, {
+      ok: true,
+      mod: readVersion().mod || "",
+      launcher: readVersion().launcher || "",
+      seen,
+      entries: all,
+      unseen: all.some((e) => newerVer(e.version, seen)),
+    });
+  }
+
+  if (req.method === "POST" && p === "/api/changelog/ack") {
+    if (!me) return send(res, 401, { ok: false, error: "NO_AUTH" });
+    const v = String(body.version || "");
+    if (v) {
+      me.changelogSeen = v;
+      await store.saveUser(me);
+    }
+    return send(res, 200, { ok: true, seen: me.changelogSeen || "" });
+  }
+
+  // Anonyme Telemetrie: nur Versionen + Fehlerklasse, kein Name, kein HWID.
+  if (req.method === "POST" && p === "/api/telemetry") {
+    try {
+      const kind = body.kind === "startup" ? "startup" : "crash";
+      const ev = {
+        kind,
+        at: Date.now(),
+        mod: String(body.mod || "").slice(0, 20),
+        launcher: String(body.launcher || "").slice(0, 20),
+        mc: String(body.mc || "").slice(0, 20),
+        os: String(body.os || "").slice(0, 40),
+        java: String(body.java || "").slice(0, 40),
+        error: String(body.error || "").slice(0, 300),
+        detail: String(body.detail || "").slice(0, 600),
+      };
+      if (!ev.mod && !ev.error) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+      await store.pushTelemetry(ev);
+      return send(res, 200, { ok: true });
+    } catch (e) {
+      return send(res, 200, { ok: true });
+    }
   }
 
   if (req.method === "POST" && p === "/api/change-password") {
@@ -621,6 +819,7 @@ async function handle(req, res) {
       return send(res, 400, { ok: false, error: "NO_GIVEAWAY" });
     }
     if (g.joined.indexOf(me.username) === -1) g.joined.push(me.username);
+    await saveGiveaway();
     return send(res, 200, giveawayView(me.username));
   }
 
@@ -644,18 +843,71 @@ async function handle(req, res) {
     giveawayState = {
       type, durationMin: dur, maxWinners: mw,
       startsAt: now, endsAt: now + dur * 60000,
-      joined: [], status: "active", winners: [],
+      joined: [], status: "active", winners: [], test: false,
     };
+    await loadGiveawayOnce();
+    giveawayState = {
+      type, durationMin: dur, maxWinners: mw,
+      startsAt: now, endsAt: now + dur * 60000,
+      joined: [], status: "active", winners: [], test: false,
+    };
+    await saveGiveaway();
     return send(res, 200, giveawayView(me.username));
+  }
+
+  // Testmodus: kurzes Giveaway, zieht Gewinner, vergibt aber KEINE Lizenz.
+  if (req.method === "POST" && p === "/api/admin/giveaway/test") {
+    await maybeFinalizeGiveaway();
+    const dur = Math.max(1, Math.min(60, Math.round(Number(body.durationMin) || 3)));
+    const mw = Math.max(1, Math.min(10, Math.round(Number(body.maxWinners) || 1)));
+    const type = DURATIONS.hasOwnProperty(body.type) ? body.type : "7days";
+    const now = Date.now();
+    giveawayState = {
+      type, durationMin: dur, maxWinners: mw,
+      startsAt: now, endsAt: now + dur * 60000,
+      joined: [], status: "active", winners: [], test: true,
+    };
+    await saveGiveaway();
+    return send(res, 200, giveawayView(me.username));
+  }
+
+  // Diagnose: warum "funktioniert das Giveaway nicht"?
+  if (req.method === "GET" && p === "/api/admin/giveaway/diag") {
+    await loadGiveawayOnce();
+    const g = giveawayState;
+    return send(res, 200, {
+      ok: true,
+      diag: {
+        storage: USE_SB ? "supabase" : "json",
+        restarts: giveawayRestarts,
+        uptimeSec: Math.round((Date.now() - SERVER_BOOTED_AT) / 1000),
+        loaded: giveawayLoaded,
+        hasState: !!g,
+        state: g ? {
+          type: g.type, status: g.status, test: !!g.test,
+          joinedCount: g.joined.length, winners: g.winners || [],
+          startsAgoSec: Math.round((Date.now() - g.startsAt) / 1000),
+          endsInSec: Math.round((g.endsAt - Date.now()) / 1000),
+        } : null,
+      },
+    });
   }
 
   // Giveaway sofort beenden + Gewinner ziehen (Admin)
   if (req.method === "POST" && p === "/api/admin/giveaway/end") {
+    await loadGiveawayOnce();
     if (!giveawayState || giveawayState.status !== "active") {
       return send(res, 400, { ok: false, error: "NO_GIVEAWAY" });
     }
     await finalizeGiveaway();
+    await saveGiveaway();
     return send(res, 200, giveawayView(me.username));
+  }
+
+  if (req.method === "GET" && p === "/api/admin/telemetry") {
+    const limit = Math.max(1, Math.min(200, Math.round(Number(body.limit) || 50)));
+    const rows = await store.listTelemetry(limit);
+    return send(res, 200, { ok: true, events: rows || [] });
   }
 
   if (req.method === "GET" && p === "/api/admin/users") {
@@ -744,4 +996,12 @@ http.createServer((req, res) => {
   });
 }).listen(PORT, () => {
   console.log("ApfelClient license server on port " + PORT + " (db: " + (USE_SB ? "supabase" : "json") + ")");
+  loadGiveawayOnce().then((g) => {
+    if (g && g.status === "active") {
+      console.log("Giveaway restored: " + g.type + ", " + (g.joined || []).length + " joined, restarts: " + giveawayRestarts);
+      maybeFinalizeGiveaway().catch(() => {});
+    } else if (g) {
+      console.log("Giveaway (ended) restored, winners: " + ((g.winners || []).join(", ") || "-"));
+    }
+  }).catch(() => {});
 });

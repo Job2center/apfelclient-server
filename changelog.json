@@ -1,0 +1,56 @@
+{
+  "entries": [
+    {
+      "version": "1.6.16",
+      "date": "2026-10-18",
+      "title": "Mod 1.6.16",
+      "tags": ["neu"],
+      "changed": [
+        "Titelscreen wieder komplett Vanilla (Panorama, Mojang-Logo, Splash)",
+        "Alle Menue-Buttons wieder Vanilla",
+        "Watermark links oben: schlichter, weisses Logo (17px), feine Kante"
+      ],
+      "fixed": [
+        "Titelscreen-Crash: Redirect-Owner war Screen statt TitleScreen",
+        "Redirect-Handler-Signatur auf TitleScreen korrigiert",
+        "Leere Icon-Buttons (Sprache, Barrierefreiheit) behalten ihr Vanilla-Icon"
+      ]
+    },
+    {
+      "version": "1.6.10",
+      "date": "2026-10-18",
+      "title": "Mod 1.6.10",
+      "tags": ["neu", "fix"],
+      "changed": [
+        "Icon-Buttons (Sprache, Barrierefreiheit) zeigen ihr Icon statt einer leeren Flaeche",
+        "Button-Styl auf allen Vanilla-Screens inkl. Server-Liste"
+      ],
+      "fixed": [
+        "Button-Beschriftungen laufen nicht mehr ueber den Button-Rand"
+      ]
+    },
+    {
+      "version": "1.6.5",
+      "date": "2026-10-18",
+      "title": "Mod 1.6.5",
+      "tags": ["neu"],
+      "changed": [
+        "Lizenz-Pruefung verschleiert: fremde Logik-Namen + Reflection, kein Klartext",
+        "Start-Checks gestaffelt (Warmup, DeferredChecks, MachineAttestor)"
+      ]
+    },
+    {
+      "version": "1.1.4",
+      "date": "2026-10-18",
+      "title": "Launcher 1.1.4",
+      "tags": ["neu"],
+      "changed": [
+        "Dashboard als Tabs: Uebersicht, Updates, Giveaway, Mod & Profile, Konto, Admin",
+        "Update-Tab mit Changelog und Versions-Diff",
+        "Mod-Download mit Fortschritt, SHA1-Pruefung und Rollback",
+        "Giveaway bleibt ueber Server-Neustarts erhalten, Testmodus + Diagnose",
+        "Anonyme Crash-/Start-Telemetrie fuer den Owner"
+      ]
+    }
+  ]
+}
