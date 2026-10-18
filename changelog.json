@@ -1,6 +1,27 @@
 {
   "entries": [
-    {
+        {
+      "version": "1.6.17",
+      "date": "2026-10-18",
+      "title": "Mod 1.6.17",
+      "tags": ["neu", "fix"],
+      "changed": [
+        "HUD: Watermark kompakter gestaltet und um das kleine Apfel-Icon links ergaenzt",
+        "HUD: FPS-Anzeige an den Watermark-Stil angepasst (Icon dort auf Wunsch wieder entfernbar)",
+        "HUD: ArrayList dezenter - kleinere Schrift und Zeilen, weniger deckende Flaechen, weniger Glow",
+        "HUD: Staff-Liste auf andere Server erweitert - Rang-Erkennung plus optional All Players; zeigt Vanished, Spectator, Survival, Creative oder Adventure",
+        "HUD: OG Sus Chunk von hohen Saeulen auf flache Bodenfelder umgestellt, mit weissem Rand, wanderndem Glanzstreifen und dezenten Sternen",
+        "GUI V1: Schneeflocken entfernt, Sterne von 90 auf 24 reduziert und abgedunkelt (V2 unberuehrt)",
+        "GUI V1: Presets Current, Graphite, Light und Apfel, Panel-Opacity-Regler und Punkt neben Einstellungen mit abweichendem Wert",
+        "Sky: um Waves, Aurora, Sunset und Starfield erweitert, dazu Speed-Regler; Modul heisst in der GUI jetzt Atmosphere",
+        "Sky: Buffer von 2 MB auf 10 MB erhoeht",
+        "Logo-Asset von Schwarz auf Weiss umgefaerbt, Transparenz erhalten",
+        "Entfernt: Anti-Vanish und die ergaenzte TitleScene - die Titelbildschirm-Lizenzpruefung bleibt erhalten"
+      ],
+      "fixed": [
+        "TitleScreen-Mixin-Redirect auf den passenden Minecraft-Methodeneigentuemer umgestellt (vorher Absturz beim Start)"
+      ]
+    },{
       "version": "1.6.16",
       "date": "2026-10-18",
       "title": "Mod 1.6.16",
