@@ -566,11 +566,29 @@ async function handle(req, res) {
         ok: true,
         mod: String(v.mod || ""),
         launcher: String(v.launcher || ""),
-        launcherUrl: String(v.launcherUrl || ""),
+        launcherUrl: String(v.launcher || "") ? "/api/download/launcher" : "",
       });
     } catch (e) {
       return send(res, 200, { ok: true, mod: "", launcher: "", launcherUrl: "" });
     }
+  }
+
+  // Fester, immer gueltiger Link auf den aktuellen Launcher.
+  // Diese Adresse kann dauerhaft weitergegeben werden - sie zeigt immer auf
+  // die neueste Version, ohne dass sich der Link aendert.
+  if (req.method === "GET" && p === "/api/download/launcher") {
+    let url = "";
+    try {
+      const v = JSON.parse(fs.readFileSync(path.join(__dirname, "version.json"), "utf8"));
+      url = String(v.launcherUrl || "");
+    } catch (e) {}
+    if (!url) return send(res, 404, { ok: false, error: "NO_LAUNCHER" });
+    res.writeHead(302, {
+      Location: url,
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
+    });
+    return res.end();
   }
 
   const body = req.method === "POST" ? await readBody(req) : {};
