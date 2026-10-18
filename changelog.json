@@ -39,7 +39,19 @@
         "Start-Checks gestaffelt (Warmup, DeferredChecks, MachineAttestor)"
       ]
     },
-        {
+            {
+      "version": "1.1.7",
+      "date": "2026-10-18",
+      "title": "Launcher 1.1.7",
+      "tags": ["fix"],
+      "changed": [
+        "Neustart beim Update ueber wscript - kein schwarzes Konsolenfenster mehr"
+      ],
+      "fixed": [
+        "Update zielte auf den Temp-Pfad des portablen Stubs statt auf die echte exe",
+        "Update-Ziel und Start-Pfade werden jetzt beim Start protokolliert"
+      ]
+    },{
       "version": "1.1.6",
       "date": "2026-10-18",
       "title": "Launcher 1.1.6",
