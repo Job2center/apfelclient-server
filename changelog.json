@@ -1,6 +1,17 @@
 {
   "entries": [
-                        {
+                            {
+      "version": "1.6.22",
+      "date": "2026-10-19",
+      "title": "Knife Skin",
+      "tags": ["neu"],
+      "added": [
+        "Knife Skin: eigene First-Person-Klingen mit Voxel-Formen, Aufschwing-Animation und Showcase-Drehung",
+        "Drei Modelle: Karambit, Butterfly, Katana",
+        "Einstellungen fuer Position, Drehung, Groesse, Tempo und nur-Waffen-Filter"
+      ],
+      "note": "Eigenes Design, keine Uebernahme fremden Quellcodes"
+    },{
       "version": "1.6.21",
       "date": "2026-10-19",
       "title": "Hand Pose + Weet Chunk Debug",
