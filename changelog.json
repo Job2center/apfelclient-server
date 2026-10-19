@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "version": "1.6.25",
+      "date": "2026-10-19",
+      "title": "67clientofficial komplett raus",
+      "tags": [
+        "geaendert"
+      ],
+      "changed": [
+        "Alter 67client-Lizenzguard endgueltig entfernt: kein Verify-Endpunkt (67clientofficial.com), keine Server-IP 37.97.206.70, kein natives Guard mehr im Jar",
+        "Lizenz-JSON-Altlasten raus: sixsevenclient.build, assets/sixsevenclient/build.json und META-INF/67c.txt werden nicht mehr ausgeliefert",
+        "Alter Guard-Mixin (LicenseGuardMixin) und der alte Kompat-Mixin entfernt - die Base laeuft auf einem harmlosen Stumpf",
+        "Hauseigenes Lizenzsystem (HWID-Signatur, Revoke-Liste) bleibt unveraendert aktiv"
+      ]
+    },
+    {
       "version": "1.6.24",
       "date": "2026-10-19",
       "title": "Entfernt: Weet, Knife, View Model",
