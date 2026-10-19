@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "version": "1.6.23",
+      "date": "2026-10-19",
+      "title": "Weet Chunk Debug: Cluster-Suche",
+      "tags": [
+        "geaendert"
+      ],
+      "changed": [
+        "Weet Chunk Debug zeigt wieder nur flache Bodenmarken auf dem Boden (keine Saeulen mehr)",
+        "Neue Cluster-Erkennung fuer Basen: verdachtige Nachbarn zaehlen statt reiner Confidence-Schwelle (Setting: Min Neighbors)",
+        "Chat-Alert meldet echte Basis-Funde inklusive Nachbarzahl, unabhaengig von OGs Min Score"
+      ],
+      "note": "Beim Basen-Suchen jetzt clusterscharf - Einzelfunde ohne Nachbarn bleiben aus"
+    },
+    {
       "version": "1.6.22",
       "date": "2026-10-19",
       "title": "Knife Skin",
