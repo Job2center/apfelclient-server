@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "version": "1.6.24",
+      "date": "2026-10-19",
+      "title": "Entfernt: Weet, Knife, View Model",
+      "tags": [
+        "geaendert"
+      ],
+      "changed": [
+        "Weet Chunk Debug entfernt (Modul, Renderer, Mixins)",
+        "Knife Skin entfernt (Modul, Modelle, Renderer, Mixin)",
+        "View Model entfernt (Modul + Hand-Offsets)"
+      ],
+      "note": "OG Sus Chunk bleibt die Base-Suche im RENDER-Tab"
+    },
+    {
       "version": "1.6.23",
       "date": "2026-10-19",
       "title": "Weet Chunk Debug: Cluster-Suche",
