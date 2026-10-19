@@ -1,6 +1,17 @@
 {
   "entries": [
-                {
+                    {
+      "version": "1.6.20",
+      "date": "2026-10-19",
+      "title": "Mod 1.6.20",
+      "tags": ["neu"],
+      "changed": [
+        "OG Sus Chunk: Bodenfelder, weisser Rand und wandernder Glanzstreifen ueberarbeitet",
+        "Staff-Liste: Rang-Erkennung, All Players und Vanished-/Spectator-/Creative-Erkennung",
+        "Watermark und HUD-Manager ueberarbeitet",
+        "Neues Modul fuer Weet-Chunk-Debug"
+      ]
+    },{
       "version": "1.6.19",
       "date": "2026-10-18",
       "title": "Mod 1.6.19",
