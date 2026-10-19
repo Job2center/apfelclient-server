@@ -1,6 +1,18 @@
 {
   "entries": [
-                    {
+                        {
+      "version": "1.6.21",
+      "date": "2026-10-19",
+      "title": "Hand Pose + Weet Chunk Debug",
+      "tags": ["neu", "geaendert"],
+      "changed": [
+        "Weet Chunk Debug: eigene Saeulen wie OG Sus Chunk, Farb- und Deckkraft-Regler, Score-Skalierung, Frische-Anzeige, Distanz-Fade, Chat-Alerts und Animations-Schalter",
+        "RENDER-Tab traegt wieder den Namen Render"
+      ],
+      "added": [
+        "Hand Pose: Hnde in der First-Person-Ansicht verschieben, drehen und skalieren (je Main/Offhand, mit Link Hands, Glide und Reset)"
+      ]
+    },{
       "version": "1.6.20",
       "date": "2026-10-19",
       "title": "Mod 1.6.20",
