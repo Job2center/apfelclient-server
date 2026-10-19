@@ -1,21 +1,27 @@
 {
   "entries": [
-                            {
+    {
       "version": "1.6.22",
       "date": "2026-10-19",
       "title": "Knife Skin",
-      "tags": ["neu"],
-      "added": [
+      "tags": [
+        "neu"
+      ],
+      "note": "Eigenes Design, keine Uebernahme fremden Quellcodes",
+      "changed": [
         "Knife Skin: eigene First-Person-Klingen mit Voxel-Formen, Aufschwing-Animation und Showcase-Drehung",
         "Drei Modelle: Karambit, Butterfly, Katana",
         "Einstellungen fuer Position, Drehung, Groesse, Tempo und nur-Waffen-Filter"
-      ],
-      "note": "Eigenes Design, keine Uebernahme fremden Quellcodes"
-    },{
+      ]
+    },
+    {
       "version": "1.6.21",
       "date": "2026-10-19",
       "title": "Hand Pose + Weet Chunk Debug",
-      "tags": ["neu", "geaendert"],
+      "tags": [
+        "neu",
+        "geaendert"
+      ],
       "changed": [
         "Weet Chunk Debug: eigene Saeulen wie OG Sus Chunk, Farb- und Deckkraft-Regler, Score-Skalierung, Frische-Anzeige, Distanz-Fade, Chat-Alerts und Animations-Schalter",
         "RENDER-Tab traegt wieder den Namen Render"
@@ -23,44 +29,57 @@
       "added": [
         "Hand Pose: Hnde in der First-Person-Ansicht verschieben, drehen und skalieren (je Main/Offhand, mit Link Hands, Glide und Reset)"
       ]
-    },{
+    },
+    {
       "version": "1.6.20",
       "date": "2026-10-19",
       "title": "Mod 1.6.20",
-      "tags": ["neu"],
+      "tags": [
+        "neu"
+      ],
       "changed": [
         "OG Sus Chunk: Bodenfelder, weisser Rand und wandernder Glanzstreifen ueberarbeitet",
         "Staff-Liste: Rang-Erkennung, All Players und Vanished-/Spectator-/Creative-Erkennung",
         "Watermark und HUD-Manager ueberarbeitet",
         "Neues Modul fuer Weet-Chunk-Debug"
       ]
-    },{
+    },
+    {
       "version": "1.6.19",
       "date": "2026-10-18",
       "title": "Mod 1.6.19",
-      "tags": ["fix"],
+      "tags": [
+        "fix"
+      ],
       "changed": [
         "Punkt neben abweichenden Einstellungen (GUI V1) vorerst deaktiviert"
       ],
       "fixed": [
         "Start und GUI-Oeffnen stabil - keine Injection in abstrakte Methoden mehr"
       ]
-    },{
+    },
+    {
       "version": "1.6.18",
       "date": "2026-10-18",
       "title": "Mod 1.6.18",
-      "tags": ["fix"],
+      "tags": [
+        "fix"
+      ],
       "changed": [
         "Punkt neben abweichenden Einstellungen wird jetzt in allen konkreten Widget-Klassen gezeichnet"
       ],
       "fixed": [
         "GUI liess sich nicht mehr oeffnen: der Setting-Mixin zielte auf eine abstrakte Methode ohne Bytecode und liess die komplette Klasse crashen"
       ]
-    },{
+    },
+    {
       "version": "1.6.17",
       "date": "2026-10-18",
       "title": "Mod 1.6.17",
-      "tags": ["neu", "fix"],
+      "tags": [
+        "neu",
+        "fix"
+      ],
       "changed": [
         "HUD: Watermark kompakter gestaltet und um das kleine Apfel-Icon links ergaenzt",
         "HUD: FPS-Anzeige an den Watermark-Stil angepasst (Icon dort auf Wunsch wieder entfernbar)",
@@ -77,11 +96,14 @@
       "fixed": [
         "TitleScreen-Mixin-Redirect auf den passenden Minecraft-Methodeneigentuemer umgestellt (vorher Absturz beim Start)"
       ]
-    },{
+    },
+    {
       "version": "1.6.16",
       "date": "2026-10-18",
       "title": "Mod 1.6.16",
-      "tags": ["neu"],
+      "tags": [
+        "neu"
+      ],
       "changed": [
         "Titelscreen wieder komplett Vanilla (Panorama, Mojang-Logo, Splash)",
         "Alle Menue-Buttons wieder Vanilla",
@@ -97,7 +119,10 @@
       "version": "1.6.10",
       "date": "2026-10-18",
       "title": "Mod 1.6.10",
-      "tags": ["neu", "fix"],
+      "tags": [
+        "neu",
+        "fix"
+      ],
       "changed": [
         "Icon-Buttons (Sprache, Barrierefreiheit) zeigen ihr Icon statt einer leeren Flaeche",
         "Button-Styl auf allen Vanilla-Screens inkl. Server-Liste"
@@ -110,27 +135,34 @@
       "version": "1.6.5",
       "date": "2026-10-18",
       "title": "Mod 1.6.5",
-      "tags": ["neu"],
+      "tags": [
+        "neu"
+      ],
       "changed": [
         "Lizenz-Pruefung verschleiert: fremde Logik-Namen + Reflection, kein Klartext",
         "Start-Checks gestaffelt (Warmup, DeferredChecks, MachineAttestor)"
       ]
     },
-                {
+    {
       "version": "1.1.8",
       "date": "2026-10-18",
       "title": "Launcher 1.1.8",
-      "tags": ["neu"],
+      "tags": [
+        "neu"
+      ],
       "changed": [
         "Fester Update-Link: /api/download/launcher verteilt immer die neueste Version",
         "Auto-Update laedt ueber diesen Link",
         "Konto-Tab zeigt die eigene Launcher-Version und ob ein Update offen ist"
       ]
-    },{
+    },
+    {
       "version": "1.1.7",
       "date": "2026-10-18",
       "title": "Launcher 1.1.7",
-      "tags": ["fix"],
+      "tags": [
+        "fix"
+      ],
       "changed": [
         "Neustart beim Update ueber wscript - kein schwarzes Konsolenfenster mehr"
       ],
@@ -138,11 +170,14 @@
         "Update zielte auf den Temp-Pfad des portablen Stubs statt auf die echte exe",
         "Update-Ziel und Start-Pfade werden jetzt beim Start protokolliert"
       ]
-    },{
+    },
+    {
       "version": "1.1.6",
       "date": "2026-10-18",
       "title": "Launcher 1.1.6",
-      "tags": ["fix"],
+      "tags": [
+        "fix"
+      ],
       "changed": [
         "Neustart beim Update laeuft garantiert ohne Konsolenfenster",
         "Update-Protokoll nach %APPDATA%\\ApfelClient\\launcher.log",
@@ -152,12 +187,15 @@
         "Update scheiterte, weil der gemerkte exe-Pfad nicht mehr existierte",
         "Alte Version wird wiederhergestellt, falls das Ersetzen fehlschlaegt"
       ]
-    },{
+    },
+    {
       "version": "1.1.5",
       "date": "2026-10-18",
       "title": "Launcher 1.1.5 (empfohlene Version)",
       "note": "Diese Version laeuft ohne Selbst-Update und bekommt den festen Link. Wer eine neuere 1.1.x hat, kann sie behalten - das Update-System wird nicht mehr genutzt.",
-      "tags": ["neu"],
+      "tags": [
+        "neu"
+      ],
       "changed": [
         "Dashboard als Tabs: Uebersicht, Updates, Giveaway, Mod & Profile, Konto, Admin",
         "Update-Tab mit Changelog und Versions-Diff",
