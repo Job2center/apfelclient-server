@@ -1,6 +1,26 @@
 {
   "entries": [
     {
+      "version": "1.6.26",
+      "date": "2026-10-23",
+      "title": "Liquid-Glass HUD + Stabilitaet",
+      "tags": [
+        "geaendert",
+        "behoben"
+      ],
+      "changed": [
+        "HUD einheitlich im Liquid-Glass-Look: eigene Flaechen bei Watermark, Spotify, Keystrokes, Staff und Binds durch ein zentrales Glas-Panel ersetzt",
+        "V2-Menue: Fenster, Sidebar, Modul-Karten und Settings-Box bekommen denselben Glas-Gradient + Licht-Einfall, das Logo oben links dreht sich jetzt",
+        "Performance: ClickGui-Konstruktor wird nur noch einmal per Reflection aufgeloest statt jeden Tick neu",
+        "Player-Chunk-Renderer alloziert keine HashSet mehr pro Frame (weniger GC im Render-Loop)",
+        "Diagnose-Logs im Picker-Heat-Path entfernt (pro Frame bzw. pro Filterwechsel)"
+      ],
+      "behoben": [
+        "Anti-Crash: alle WorldRender-Renderer (TargetESP, JumpCircle, ChinaHat, PlayerChunk, Sky, Particles, Morph, OG-Sus) faangen Exceptions ab - ein fehlerhafter Renderer crasht nicht mehr das ganze Spiel",
+        "OG-Sus-Chunkscan hat ein Zeitbudget pro Tick und kann den Client nicht mehr aufhaengen"
+      ]
+    },
+    {
       "version": "1.6.25",
       "date": "2026-10-19",
       "title": "67clientofficial komplett raus",
