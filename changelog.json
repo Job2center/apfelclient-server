@@ -1,6 +1,19 @@
 {
   "entries": [
     {
+      "title": "GUI-V2-Keybinds und Custom-Menübuttons",
+      "tags": [
+        "behoben",
+        "design"
+      ],
+      "version": "1.6.35",
+      "date": "2026-10-24",
+      "changed": [
+        "Globaler Modul-Keybind ist jetzt als eigenes Feld in den GUI-V2-Modulsettings sichtbar",
+        "Singleplayer, Multiplayer, Options und Quit erhalten eigene gezeichnete Icons im Titelmenü"
+      ]
+    },
+    {
       "title": "Titelmenü-Buttons zuverlässig",
       "version": "1.6.34",
       "tags": [
