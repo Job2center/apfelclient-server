@@ -1,6 +1,24 @@
 {
   "entries": [
     {
+      "version": "1.6.32",
+      "fixed": [
+        "Bekannte Staff-Mitglieder verschwinden nicht sofort aus der Liste, wenn sie aus TAB entfernt werden"
+      ],
+      "date": "2026-10-24",
+      "changed": [
+        "Titelmenü-Panel und Buttons etwas größer gestaltet",
+        "Titelbildschirm vermeidet wiederholte Array-Allokationen und zeichnet weichere Waves mit weniger Kurvensegmenten",
+        "Staff-Liste zeigt VANISH rot und unsichere TAB-Verschwinden als VANISH? amberfarben an",
+        "Bis zu zehn Staff-Einträge sichtbar; Zeilen werden pro Tick wiederverwendet und die Sortierung arbeitet nur bei Änderungen"
+      ],
+      "title": "Größeres Titelmenü und sichtbarer Staff-Vanish",
+      "tags": [
+        "verbessert",
+        "performance"
+      ]
+    },
+    {
       "changed": [
         "Atmosphere-Wellen bewegen sich flüssiger und das Sky-Baking verwendet weniger temporäre Daten und Threads",
         "Sterne werden einmal vorbereitet statt in jedem Frame neu berechnet",
