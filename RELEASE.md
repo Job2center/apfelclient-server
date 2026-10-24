@@ -105,9 +105,10 @@ ausführbar, keine Datenverluste.
 
 ### Admin-Changelog (bestehende Installation)
 
-Vor dem Aktivieren von Changelog-Bearbeitung einmal `migration-app-config.sql`
-im Supabase SQL Editor ausführen. Die Tabelle speichert nur den Admin-Overlay;
-die ausgelieferten Changelog-Dateien bleiben als Standard erhalten.
+Vor dem Aktivieren von Changelog-Bearbeitung und Admin-Accounts mit erzwungenem
+Namenswechsel einmal `migration-app-config.sql` im Supabase SQL Editor ausführen.
+Die Tabelle speichert nur den Admin-Overlay; die zusätzliche Benutzer-Spalte
+speichert den erzwungenen Namenswechsel. Die ausgelieferten Changelog-Dateien bleiben als Standard erhalten.
 
 ### RLS (Row Level Security) — wichtig
 Beim Ausführen von `schema.sql` fragt Supabase, ob RLS aktiviert werden soll:

@@ -15,6 +15,7 @@ create table if not exists users (
   reset_month text,
   resets_used integer not null default 0,
   must_change_pw boolean not null default false,
+  must_change_username boolean not null default false,
   discord_id text,
   changelog_seen text not null default ''
 );
@@ -77,6 +78,7 @@ create index if not exists idx_telemetry_at on telemetry(at desc);
 
 -- Altbestand nachziehen, falls users schon existiert:
 alter table users add column if not exists changelog_seen text not null default '';
+alter table users add column if not exists must_change_username boolean not null default false;
 
 -- Zugriffsschutz: nur der Render-Server (service_role) darf die Tabellen
 -- benutzen. Die anon-/authenticated-Rollen bekommen bewusst KEINE Rechte,

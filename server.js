@@ -145,6 +145,8 @@ function rowToUser(r) {
     resetMonth: r.reset_month,
     resetsUsed: r.resets_used || 0,
     mustChangePw: !!r.must_change_pw,
+    mustChangeUsername: !!r.must_change_username,
+    _usernameFlagSupported: r.must_change_username !== undefined,
     discordId: r.discord_id || null,
     changelogSeen: r.changelog_seen || "",
   };
@@ -167,6 +169,7 @@ function userToRow(u) {
     reset_month: u.resetMonth || null,
     resets_used: u.resetsUsed || 0,
     must_change_pw: !!u.mustChangePw,
+    ...(u._usernameFlagSupported || u.mustChangeUsername ? { must_change_username: !!u.mustChangeUsername } : {}),
     discord_id: u.discordId || null,
     changelog_seen: u.changelogSeen || "",
   };
@@ -533,6 +536,7 @@ async function userView(u) {
     license: licenseView(u),
     resetsLeft: resetsLeft(u),
     mustChangePassword: !!u.mustChangePw,
+    mustChangeUsername: !!u.mustChangeUsername,
     notifications: notes,
     unread: notes.filter((n) => !n.read).length,
   };
@@ -547,6 +551,7 @@ function newUser(username, password, isAdmin) {
     license: null, openRequest: null, notifications: [],
     resetMonth: monthKey(new Date()), resetsUsed: 0,
     mustChangePw: false, discordId: null,
+    mustChangeUsername: false,
   };
 }
 
@@ -818,6 +823,7 @@ async function handle(req, res) {
       return send(res, 400, { ok: false, error: "BAD_INPUT" });
     }
     if (nn === me.username) {
+      if (me.mustChangeUsername) return send(res, 400, { ok: false, error: "BAD_INPUT" });
       return send(res, 200, { ok: true, user: await userView(me) });
     }
     if (await store.getUser(nn)) {
@@ -825,6 +831,7 @@ async function handle(req, res) {
     }
     const old = me.username;
     me.username = nn;
+    me.mustChangeUsername = false;
     await store.renameUser(old, me);
     const token = await mintToken(nn);
     return send(res, 200, { ok: true, token, user: await userView(me) });
@@ -978,11 +985,17 @@ async function handle(req, res) {
     const password = crypto.randomBytes(12).toString("hex");
     const user = newUser(username, password, false);
     user.mustChangePw = true;
+    user.mustChangeUsername = true;
     if (type !== "none") {
       const now = Date.now();
       user.license = { type, grantedAt: now, expiresAt: type === "lifetime" ? null : now + DURATIONS[type] * 1000 };
     }
-    await store.saveUser(user);
+    try {
+      await store.saveUser(user);
+    } catch (e) {
+      if (USE_SB) return send(res, 503, { ok: false, error: "DB_MIGRATION_REQUIRED" });
+      throw e;
+    }
     return send(res, 200, { ok: true, username, password, licenseType: type });
   }
 
