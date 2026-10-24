@@ -1,6 +1,19 @@
 {
   "entries": [
     {
+      "title": "Titelmenü-Buttons zuverlässig",
+      "version": "1.6.34",
+      "tags": [
+        "behoben"
+      ],
+      "date": "2026-10-24",
+      "changed": [
+        "Klickkoordinaten werden mit den NanoVG-UI-Maßen abgeglichen",
+        "Options öffnet direkt die Minecraft-Einstellungen",
+        "Quit beendet den Client direkt"
+      ]
+    },
+    {
       "version": "1.6.33",
       "tags": [
         "design",
