@@ -1,6 +1,18 @@
 {
   "entries": [
     {
+      "version": "1.6.30",
+      "date": "2026-10-24",
+      "title": "Smooth Waves im Titelbildschirm",
+      "tags": [
+        "geaendert"
+      ],
+      "changed": [
+        "Titelmenü etwas größer und großzügiger gestaltet",
+        "Langsam fließende, weich gezeichnete NanoVG-Wellen ergänzen den animierten Hintergrund"
+      ]
+    },
+    {
       "version": "1.6.29",
       "date": "2026-10-24",
       "title": "Titelmenü-Rendering und Menü-Sperre",
