@@ -1,6 +1,19 @@
 {
   "entries": [
     {
+      "version": "1.6.27",
+      "date": "2026-10-24",
+      "title": "Kompakter ApfelClient-Titelbildschirm",
+      "tags": [
+        "neu",
+        "geaendert"
+      ],
+      "changed": [
+        "Eigener schwarzer Titelbildschirm im kompakten ApfelClient-Design mit Logo",
+        "Singleplayer, Multiplayer, Optionen und Beenden direkt über das neue Menü erreichbar"
+      ]
+    },
+    {
       "version": "1.6.26",
       "date": "2026-10-23",
       "title": "Liquid-Glass HUD + Stabilitaet",
