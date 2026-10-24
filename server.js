@@ -16,6 +16,8 @@ const SB_URL = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
 const SB_KEY = process.env.SUPABASE_SERVICE_KEY || "";
 const USE_SB = SB_URL.length > 10 && SB_KEY.length > 20;
 const BOT_SECRET = process.env.BOT_SECRET || "";
+const onlinePresence = new Map();
+const ONLINE_TTL_MS = 75000;
 // ---------- helpers: Version, Changelog, Mod-Meta ----------
 
 const CHANGELOG_FILE = path.join(__dirname, "changelog.json");
@@ -486,8 +488,7 @@ function validPass(p) {
 }
 
 function validNewPass(p) {
-  return typeof p === "string" && p.length >= 8 && p.length <= 72
-    && /[A-Za-z]/.test(p) && /[0-9]/.test(p);
+  return typeof p === "string" && p.length >= 4 && p.length <= 72;
 }
 
 function validHwid(h) {
@@ -579,6 +580,14 @@ async function handle(req, res) {
 
   if (req.method === "GET" && p === "/api/health") {
     return send(res, 200, { ok: true, users: await store.usersCount(), db: USE_SB ? "supabase" : "json" });
+  }
+
+  if (req.method === "GET" && p === "/api/status") {
+    const cutoff = Date.now() - ONLINE_TTL_MS;
+    for (const [username, seenAt] of onlinePresence) {
+      if (seenAt < cutoff) onlinePresence.delete(username);
+    }
+    return send(res, 200, { ok: true, onlineUsers: onlinePresence.size });
   }
 
   if (req.method === "GET" && p === "/api/version") {
@@ -692,10 +701,17 @@ async function handle(req, res) {
   if (!me && (p === "/api/me"
       || p === "/api/notifications/read" || p === "/api/hwid-reset"
       || p === "/api/change-password" || p === "/api/change-username"
+      || p === "/api/presence"
       || p === "/api/download/mod"
       || p === "/api/giveaway" || p === "/api/giveaway/join"
       || p.startsWith("/api/admin/"))) {
     return send(res, 401, { ok: false, error: "NO_AUTH" });
+  }
+
+  if (req.method === "POST" && p === "/api/presence") {
+    if (body.active === false) onlinePresence.delete(me);
+    else onlinePresence.set(me, Date.now());
+    return send(res, 200, { ok: true });
   }
 
   if (req.method === "GET" && p === "/api/me") {
