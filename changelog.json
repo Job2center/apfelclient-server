@@ -1,6 +1,23 @@
 {
   "entries": [
     {
+      "changed": [
+        "Atmosphere-Wellen bewegen sich flüssiger und das Sky-Baking verwendet weniger temporäre Daten und Threads",
+        "Sterne werden einmal vorbereitet statt in jedem Frame neu berechnet",
+        "Launcher-Admins können Updates bearbeiten/löschen und Accounts mit temporärem Startpasswort erstellen"
+      ],
+      "tags": [
+        "geaendert",
+        "behoben"
+      ],
+      "version": "1.6.31",
+      "date": "2026-10-24",
+      "title": "Atmosphere, Performance und Admin-Tools",
+      "fixed": [
+        "Keybinds lassen sich in GUI V2 wieder direkt in der Modul-Einstellung setzen"
+      ]
+    },
+    {
       "version": "1.6.30",
       "date": "2026-10-24",
       "title": "Smooth Waves im Titelbildschirm",

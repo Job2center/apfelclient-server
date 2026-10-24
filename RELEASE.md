@@ -103,6 +103,12 @@ Neu seit heute: `giveaway` (Giveaway überlebt Server-Neustarts) und `telemetry`
 (anonyme Crash-/Start-Meldungen). Beide mit `create table if not exists` → mehrfach
 ausführbar, keine Datenverluste.
 
+### Admin-Changelog (bestehende Installation)
+
+Vor dem Aktivieren von Changelog-Bearbeitung einmal `migration-app-config.sql`
+im Supabase SQL Editor ausführen. Die Tabelle speichert nur den Admin-Overlay;
+die ausgelieferten Changelog-Dateien bleiben als Standard erhalten.
+
 ### RLS (Row Level Security) — wichtig
 Beim Ausführen von `schema.sql` fragt Supabase, ob RLS aktiviert werden soll:
 **„Run and enable RLS"** wählen.

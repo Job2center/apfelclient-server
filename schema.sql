@@ -64,6 +64,13 @@ create table if not exists telemetry (
   detail text
 );
 
+-- Admin-editable changelog overlay (keeps release-file entries as defaults).
+create table if not exists app_config (
+  key text primary key,
+  payload jsonb not null default '{}'::jsonb,
+  updated_at bigint not null default 0
+);
+
 create index if not exists idx_notifications_user on notifications(username);
 create index if not exists idx_requests_status on requests(status);
 create index if not exists idx_telemetry_at on telemetry(at desc);
@@ -81,3 +88,4 @@ alter table notifications enable row level security;
 alter table requests enable row level security;
 alter table giveaway enable row level security;
 alter table telemetry enable row level security;
+alter table app_config enable row level security;

@@ -92,12 +92,13 @@ function loadJsonDb() {
     db.tokens = db.tokens || {};
     db.requests = db.requests || [];
     db.giveaway = db.giveaway || null;
+    db.settings = db.settings || {};
     db.telemetry = db.telemetry || [];
     db.restarts = (db.restarts || 0) + 1;
     db.seq = db.seq || 1;
     return db;
   } catch (e) {
-    return { users: {}, tokens: {}, requests: [], giveaway: null, telemetry: [], restarts: 1, seq: 1 };
+    return { users: {}, tokens: {}, requests: [], giveaway: null, settings: {}, telemetry: [], restarts: 1, seq: 1 };
   }
 }
 
@@ -254,6 +255,20 @@ const store = USE_SB ? {
   async listTelemetry(limit) {
     return await sb("telemetry?select=*&order=id.desc&limit=" + limit, "GET");
   },
+  async getSetting(key) {
+    try {
+      const rows = await sb("app_config?key=eq." + eq(key) + "&select=payload", "GET");
+      return rows.length ? rows[0].payload : null;
+    } catch (e) {
+      // Keep the public changelog available during a rolling schema migration.
+      return null;
+    }
+  },
+  async saveSetting(key, payload) {
+    const row = { key, payload, updated_at: Date.now() };
+    const rows = await sb("app_config?key=eq." + eq(key) + "&select=key", "PATCH", row);
+    if (!rows || !rows.length) await sb("app_config", "POST", row);
+  },
   async restarts() {
     const rows = await sb("giveaway?id=eq.1&select=restarts", "GET");
     const n = (rows.length ? (rows[0].restarts || 0) : 0) + 1;
@@ -335,6 +350,8 @@ const store = USE_SB ? {
     async listTelemetry(limit) {
       return DB.telemetry.slice(-limit).reverse();
     },
+    async getSetting(key) { return DB.settings[key] || null; },
+    async saveSetting(key, payload) { DB.settings[key] = payload; persist(); },
     async restarts() { DB.restarts = (DB.restarts || 0) + 1; persist(); return DB.restarts; },
   };
 })();
@@ -732,7 +749,14 @@ async function handle(req, res) {
 
   // Changelog (oeffentlich) + "gesehen"-Markierung
   if (req.method === "GET" && p === "/api/changelog") {
-    const all = readChangelog();
+    const config = (await store.getSetting("changelog")) || { edits: {}, deleted: [] };
+    const edited = config.edits || {};
+    const deleted = new Set(config.deleted || []);
+    const all = readChangelog().filter((e) => !deleted.has(e.version)).map((e) => edited[e.version] || e);
+    for (const [version, entry] of Object.entries(edited)) {
+      if (!all.some((e) => e.version === version) && !deleted.has(version)) all.push(entry);
+    }
+    all.sort((a, b) => newerVer(b.version, a.version) ? 1 : (newerVer(a.version, b.version) ? -1 : 0));
     const seen = me && me.changelogSeen ? String(me.changelogSeen) : "";
     return send(res, 200, {
       ok: true,
@@ -944,6 +968,49 @@ async function handle(req, res) {
       });
     }
     return send(res, 200, { ok: true, users: list });
+  }
+
+  if (req.method === "POST" && p === "/api/admin/create-user") {
+    const username = String(body.username || "").trim();
+    const type = String(body.licenseType || "none");
+    if (!validName(username) || !["none", "lifetime", "month", "7days"].includes(type)
+        || await store.getUser(username)) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    const password = crypto.randomBytes(12).toString("hex");
+    const user = newUser(username, password, false);
+    user.mustChangePw = true;
+    if (type !== "none") {
+      const now = Date.now();
+      user.license = { type, grantedAt: now, expiresAt: type === "lifetime" ? null : now + DURATIONS[type] * 1000 };
+    }
+    await store.saveUser(user);
+    return send(res, 200, { ok: true, username, password, licenseType: type });
+  }
+
+  if (req.method === "POST" && (p === "/api/admin/changelog/save" || p === "/api/admin/changelog/delete")) {
+    const version = String(body.version || "").trim();
+    if (!/^\d+(?:\.\d+){1,3}$/.test(version)) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    const config = (await store.getSetting("changelog")) || { edits: {}, deleted: [] };
+    config.edits = config.edits || {};
+    config.deleted = Array.isArray(config.deleted) ? config.deleted : [];
+    if (p.endsWith("/delete")) {
+      delete config.edits[version];
+      if (!config.deleted.includes(version)) config.deleted.push(version);
+    } else {
+      const split = (v, max, limit) => String(v || "").split(/\r?\n/).map((x) => x.trim()).filter(Boolean).slice(0, max).map((x) => x.slice(0, limit));
+      const tags = String(body.tags || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 5).map((x) => x.slice(0, 32));
+      const entry = { version, date: String(body.date || "").slice(0, 20), title: String(body.title || "").slice(0, 120), tags,
+        changed: split(body.changed, 30, 240), fixed: split(body.fixed, 30, 240), note: String(body.note || "").slice(0, 500) };
+      if (!entry.title) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+      config.edits[version] = entry;
+      config.deleted = config.deleted.filter((v) => v !== version);
+    }
+    try {
+      await store.saveSetting("changelog", config);
+    } catch (e) {
+      if (USE_SB) return send(res, 503, { ok: false, error: "DB_MIGRATION_REQUIRED" });
+      throw e;
+    }
+    return send(res, 200, { ok: true });
   }
 
   if (req.method === "POST" && p === "/api/admin/set-password") {
