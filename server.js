@@ -982,7 +982,8 @@ async function handle(req, res) {
     const type = String(body.licenseType || "none");
     if (!validName(username) || !["none", "lifetime", "month", "7days"].includes(type)
         || await store.getUser(username)) return send(res, 400, { ok: false, error: "BAD_INPUT" });
-    const password = crypto.randomBytes(12).toString("hex");
+    // Shared first-login marker; new accounts are forced to set both credentials.
+    const password = "Change";
     const user = newUser(username, password, false);
     user.mustChangePw = true;
     user.mustChangeUsername = true;
