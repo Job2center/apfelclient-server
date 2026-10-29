@@ -1,6 +1,18 @@
 {
   "entries": [
     {
+      "title": "V1-GUI wieder im alten Panel-Style",
+      "tags": [
+        "geaendert"
+      ],
+      "version": "1.6.39",
+      "date": "2026-10-29",
+      "changed": [
+        "Prestige-V1-GUI aus 1.6.38 wieder entfernt - das alte Panel-Style-V1-GUI ist zurück",
+        "GUI-V2 bleibt unverändert"
+      ]
+    },
+    {
       "title": "Prestige-Module, Tab-GUI als V1 und Modrinth-Fix",
       "tags": [
         "neu",
