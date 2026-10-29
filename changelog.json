@@ -1,6 +1,33 @@
 {
   "entries": [
     {
+      "title": "Prestige-Module, Tab-GUI als V1 und Modrinth-Fix",
+      "tags": [
+        "neu",
+        "geaendert",
+        "behoben"
+      ],
+      "version": "1.6.38",
+      "date": "2026-10-29",
+      "note": "Modul-Logik aus der Prestige-Quellenanalyse portiert, als eigene Implementierung auf der ApfelClient-Base neu gebaut",
+      "changed": [
+        "V1-GUI komplett neu im Prestige-Tab-Layout: Tabs oben (Combat, Misc, Render, Visuals, Client, Config, Social), Modul-Buttons darunter, Settings als Dropdown je Modul",
+        "Config-Tab mit Client-Einstellungen, Theme-Auswahl, Profilen (Save/Load/Delete) und Self-Destruct-Button; Social-Tab mit Freundeliste und Hinzufuegen-Entfernen",
+        "Self Destruct als eigenes Modul im Prestige-Stil: setzt alle Module aus, Keybinds und Settings zurueck, loescht Config-Daten, ruft GC auf und merkt die Jar zum Loeschen nach Spielende vor",
+        "Log Bypass: raeumt latest.log automatisch alle 10 Sekunden (Client-Spuren raus, Modzahl wird um die eigene Jar korrigiert)",
+        "Aspect Ratio: Fensterbreite auf 1800/1720/1600/1440/1300 umstellbar, Reset auf 1920 beim Ausschalten",
+        "Auto Jump Reset: springt beim Knockback mit einstellbarer Chance, um Schaden zu reduzieren",
+        "WTap: laesst W nach einem Treffer kurz los (Sprint-Reset) mit Reaction-, Hold- und Chance-Reglern",
+        "No Miss Delay: nach einem Fehltreffer mit Schwert oder Axt entfaellt die Angriffs-Verzoegerung sofort",
+        "Fake Lag: Client-to-Server-Pakete werden gepuffert und in Bursts gesendet; Interaktionen (Attack/Use/Swing) laufen immer sofort durch"
+      ],
+      "fixed": [
+        "Self Destruct loescht die Jar jetzt auf jedem Rechner - der alte Button war nur auf einen festen User-Pfad gebunden und machte sonst nichts",
+        "Start ohne frische ApfelClient-Session (z.B. ueber Modrinth-Launcher) crasht nicht mehr, sondern zeigt den LinkScreen mit Hinweis und Beenden-Button; die Lizenzpruefung bleibt voll aktiv",
+        "No Miss Delay erkennt Schwerter und Aexte ueber Item-Tags, da SwordItem in Minecraft 1.21.11 nicht mehr existiert"
+      ]
+    },
+    {
       "title": "GUI-V2-Keybinds und Custom-Menübuttons",
       "tags": [
         "behoben",
