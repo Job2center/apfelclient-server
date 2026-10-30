@@ -1,0 +1,3 @@
+# Lokaler JSON-Fallback (echte Nutzerdaten — nie committen)
+data/
+node_modules/

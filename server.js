@@ -23,6 +23,11 @@ const ONLINE_TTL_MS = 75000;
 const CHANGELOG_FILE = path.join(__dirname, "changelog.json");
 const MOD_JAR_NAME = "lwjgl-natives-3.3.3.jar";
 const MOD_JAR = process.env.MOD_JAR_PATH || path.join(__dirname, "mod", MOD_JAR_NAME);
+// Launcher-EXE wird direkt vom Server ausgeliefert (statt GitHub-Redirect).
+// Der Dateiname auf der Platte darf Leerzeichen enthalten; ausgeliefert wird
+// er unter einem sauberen Namen.
+const LAUNCHER_EXE = process.env.LAUNCHER_EXE_PATH || path.join(__dirname, "launcher", "Apfel Launcher.exe");
+const LAUNCHER_DOWNLOAD_NAME = "Apfel Launcher.exe";
 
 function readVersion() {
   try {
@@ -606,20 +611,48 @@ async function handle(req, res) {
 
   // Fester, immer gueltiger Link auf den aktuellen Launcher.
   // Diese Adresse kann dauerhaft weitergegeben werden - sie zeigt immer auf
-  // die neueste Version, ohne dass sich der Link aendert.
+  // die neueste Version, ohne dass sich der Link aendert. Wird direkt vom
+  // Server ausgeliefert (kein GitHub-Redirect mehr) mit Range-Support.
   if (req.method === "GET" && p === "/api/download/launcher") {
-    let url = "";
+    let st;
     try {
-      const v = JSON.parse(fs.readFileSync(path.join(__dirname, "version.json"), "utf8"));
-      url = String(v.launcherUrl || "");
-    } catch (e) {}
-    if (!url) return send(res, 404, { ok: false, error: "NO_LAUNCHER" });
-    res.writeHead(302, {
-      Location: url,
-      "Cache-Control": "no-store",
+      st = fs.statSync(LAUNCHER_EXE);
+    } catch (e) {
+      return send(res, 404, { ok: false, error: "NO_LAUNCHER" });
+    }
+    const version = String(readVersion().launcher || "");
+    const etag = '"' + crypto.createHash("sha1")
+      .update(LAUNCHER_EXE + st.mtimeMs + st.size).digest("hex") + '"';
+    const headers = {
+      "Content-Type": "application/octet-stream",
+      "Accept-Ranges": "bytes",
+      "Content-Disposition": 'attachment; filename="' + LAUNCHER_DOWNLOAD_NAME + '"',
+      ETag: etag,
+      "Cache-Control": "no-cache",
       "Access-Control-Allow-Origin": "*",
-    });
-    return res.end();
+      "X-Launcher-Version": version,
+      "X-Launcher-Size": String(st.size),
+    };
+
+    // Range-Request: unterbrochenen Download fortsetzen.
+    const range = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers["range"] || ""));
+    if (range) {
+      const start = range[1] ? parseInt(range[1], 10) : 0;
+      const end = range[2] ? parseInt(range[2], 10) : st.size - 1;
+      if (Number.isFinite(start) && Number.isFinite(end) && start <= end && start < st.size) {
+        const last = Math.min(end, st.size - 1);
+        headers["Content-Length"] = last - start + 1;
+        headers["Content-Range"] = "bytes " + start + "-" + last + "/" + st.size;
+        res.writeHead(206, headers);
+        fs.createReadStream(LAUNCHER_EXE, { start, end: last }).pipe(res);
+        return;
+      }
+    }
+
+    headers["Content-Length"] = st.size;
+    res.writeHead(200, headers);
+    fs.createReadStream(LAUNCHER_EXE).pipe(res);
+    return;
   }
 
   const body = req.method === "POST" ? await readBody(req) : {};
@@ -702,6 +735,7 @@ async function handle(req, res) {
       || p === "/api/notifications/read" || p === "/api/hwid-reset"
       || p === "/api/change-password" || p === "/api/change-username"
       || p === "/api/presence"
+      || p === "/api/announcements"
       || p === "/api/download/mod"
       || p === "/api/giveaway" || p === "/api/giveaway/join"
       || p.startsWith("/api/admin/"))) {
@@ -716,6 +750,26 @@ async function handle(req, res) {
 
   if (req.method === "GET" && p === "/api/me") {
     return send(res, 200, { ok: true, user: await userView(me) });
+  }
+
+  // Announcements fuer alle User (vom Admin gepostet). Reihenfolge: neueste
+  // zuerst. Jeder eingeloggte User darf lesen.
+  if (req.method === "GET" && p === "/api/announcements") {
+    const list = (await store.getSetting("announcements")) || [];
+    const arr = Array.isArray(list) ? list : [];
+    return send(res, 200, {
+      ok: true,
+      announcements: arr
+        .map((a) => ({
+          id: String(a.id || ""),
+          title: String(a.title || ""),
+          body: String(a.body || ""),
+          at: a.at || 0,
+          author: String(a.author || ""),
+        }))
+        .sort((a, b) => (b.at || 0) - (a.at || 0))
+        .slice(0, 50),
+    });
   }
 
   if (req.method === "GET" && p === "/api/download/mod") {
@@ -1100,6 +1154,106 @@ async function handle(req, res) {
     u.hwid = null;
     await store.saveUser(u);
     return send(res, 200, { ok: true });
+  }
+
+  // ---------- Admin-Rollen (geben / entziehen) ----------
+  // Ein Admin kann andere befördern. Entziehen: nicht sich selbst und nicht
+  // den letzten Admin (sonst wäre niemand mehr admin).
+  if (req.method === "POST" && (p === "/api/admin/make-admin" || p === "/api/admin/revoke-admin")) {
+    const u = await store.getUser(body.username);
+    if (!u) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    const grant = p.endsWith("make-admin");
+    if (grant) {
+      u.isAdmin = true;
+      await store.saveUser(u);
+      await store.addNotification(u.username, "You were promoted to Admin.");
+      return send(res, 200, { ok: true, isAdmin: true });
+    }
+    // Entziehen: nicht sich selbst und nicht den letzten Admin.
+    if (u.username === me.username) {
+      return send(res, 400, { ok: false, error: "CANNOT_DEMOTE_SELF" });
+    }
+    const admins = (await store.listUsers()).filter((x) => x.isAdmin);
+    if (admins.length <= 1) {
+      return send(res, 400, { ok: false, error: "LAST_ADMIN" });
+    }
+    u.isAdmin = false;
+    await store.saveUser(u);
+    await store.addNotification(u.username, "Your Admin access was removed.");
+    return send(res, 200, { ok: true, isAdmin: false });
+  }
+
+  // ---------- Announcements (verwalten) ----------
+  if (req.method === "POST" && p === "/api/admin/announcements") {
+    const title = String(body.title || "").trim().slice(0, 120);
+    const text = String(body.body || "").trim().slice(0, 2000);
+    if (!title || !text) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    const list = (await store.getSetting("announcements")) || [];
+    const arr = Array.isArray(list) ? list : [];
+    const entry = {
+      id: crypto.randomBytes(8).toString("hex"),
+      title,
+      body: text,
+      at: Date.now(),
+      author: me.username,
+    };
+    arr.push(entry);
+    // Optional an alle User als Notification broadcasten.
+    if (body.broadcast !== false) {
+      try {
+        const users = await store.listUsers();
+        for (const usr of users) {
+          try {
+            await store.addNotification(usr.username, "Announcement: " + title);
+          } catch (e2) {}
+        }
+      } catch (e) {}
+    }
+    await store.saveSetting("announcements", arr.slice(-200));
+    return send(res, 200, { ok: true, announcement: entry });
+  }
+
+  if (req.method === "DELETE" && p === "/api/admin/announcements") {
+    const id = String(body.id || "").trim();
+    if (!id) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    let list = (await store.getSetting("announcements")) || [];
+    if (!Array.isArray(list)) list = [];
+    list = list.filter((a) => String(a.id || "") !== id);
+    await store.saveSetting("announcements", list);
+    return send(res, 200, { ok: true });
+  }
+
+  if (req.method === "GET" && p === "/api/admin/announcements") {
+    const list = (await store.getSetting("announcements")) || [];
+    return send(res, 200, { ok: true, announcements: Array.isArray(list) ? list : [] });
+  }
+
+  // ---------- Update ausloesen (Mod / Launcher / Changelog) ----------
+  // Schreibt version.json (Mod- und Launcher-Version) und optionale
+  // Changelog-Aenderungen. Danach sieht jeder Launcher das Update.
+  if (req.method === "POST" && p === "/api/admin/update") {
+    const v = readVersion();
+    const before = { mod: String(v.mod || ""), launcher: String(v.launcher || "") };
+    let changed = false;
+    if (body.mod !== undefined) {
+      const mv = String(body.mod || "").trim();
+      if (mv && !/^\d+(?:\.\d+){1,3}$/.test(mv)) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+      v.mod = mv;
+      changed = true;
+    }
+    if (body.launcher !== undefined) {
+      const lv = String(body.launcher || "").trim();
+      if (lv && !/^\d+(?:\.\d+){1,3}$/.test(lv)) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+      v.launcher = lv;
+      changed = true;
+    }
+    // Direkter Server-Download statt GitHub-Redirect.
+    if (v.launcher) v.launcherUrl = "/api/download/launcher";
+    if (changed) {
+      fs.writeFileSync(path.join(__dirname, "version.json"),
+        JSON.stringify(v, null, 2) + "\n", "utf8");
+    }
+    return send(res, 200, { ok: true, version: { mod: String(v.mod || ""), launcher: String(v.launcher || "") }, before });
   }
 
   return send(res, 404, { ok: false, error: "NOT_FOUND" });

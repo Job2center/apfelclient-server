@@ -1,5 +1,5 @@
 {
-  "mod": "1.6.40",
-  "launcher": "1.1.14",
-  "launcherUrl": "https://github.com/Job2center/apfelclient-server/releases/download/v1.1.14/Apfel.Launcher.1.1.14.exe"
+  "mod": "1.6.41",
+  "launcher": "1.1.15",
+  "launcherUrl": "/api/download/launcher"
 }

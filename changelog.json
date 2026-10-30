@@ -1,6 +1,25 @@
 {
   "entries": [
     {
+      "title": "HitBox-Slider wirkt jetzt, NoMissDelay entfernt, GUI Drag & Drop",
+      "tags": [
+        "geaendert",
+        "behoben"
+      ],
+      "version": "1.6.41",
+      "date": "2026-10-30",
+      "fixed": [
+        "HitBox-Modul hatte nie eine Wirkung: der mitgelieferte Mixin war ein leeres Platzhalter-Stueck, das den Slider-Wert ignorierte; jetzt werden Trefferboxen von Gegnern und Mobbs tatsaechlich um den eingestellten Wert erweitert (der eigene Spieler bleibt unveraendert)",
+        "Switch Monitor: Das Fenster wurde auf dem falschen Monitor platziert, wenn Minecraft mit Skalierung (HiDPI/GUI-Scale) lief; jetzt wird die echte Fenstergroesse verwendet und der Wechsel wird bei Bedarf erneut versucht"
+      ],
+      "changed": [
+        "NoMissDelay komplett entfernt (Modul und zugehoeriger Mixin geloescht)",
+        "Custom-Client-Panel: Module lassen sich jetzt mit gedrueckter Maustaste verschieben (Drag & Drop); Reihenfolge wird gespeichert und beim Neustart uebernommen",
+        "Custom-Client-Panel: Neue Sektion Friends mit Nametag- und Bypass-Optionen fuer Freundes-ESP",
+        "Launcher 1.1.15: Deutsch/Englisch-Umschalter, ueberarbeitetes Admin-Panel (Ankündigungen, Update veroeffentlichen, Admin-Rechte), Launcher-Download direkt vom Server"
+      ]
+    },
+    {
       "title": "Switch Monitor, Freunde & Profile kombiniert und diverse Fixes",
       "tags": [
         "neu",
