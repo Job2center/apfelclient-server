@@ -1,6 +1,30 @@
 {
   "entries": [
     {
+      "title": "Switch Monitor, Freunde & Profile kombiniert und diverse Fixes",
+      "tags": [
+        "neu",
+        "geaendert",
+        "behoben"
+      ],
+      "version": "1.6.40",
+      "date": "2026-10-30",
+      "changed": [
+        "Switch Monitor im Custom-Client-Panel: verschiebt das Spiel-Fenster (und damit das ApfelClient-Menue) auf den linken oder rechten Monitor (Off/Left/Right), Einstellung wird gespeichert und beim Start angewendet",
+        "Freunde und Profile sind jetzt EIN kombiniertes Panel (oben Freunde, darunter Profile) im Titelmenue-Custom-Bereich statt zwei separater Panels",
+        "WTap, Auto Jump Reset und Fake Lag von MISC nach COMBAT verschoben",
+        "Log Bypass ist jetzt standardmaessig aktiv (abschaltbar)",
+        "Self Destruct und Aspect Ratio komplett entfernt"
+      ],
+      "fixed": [
+        "Fake Lag hatte keine Wirkung: der Paket-Check verglich Klassennamen-Strings, die im Live-Lauf (Intermediary-Mappings) nie trafen; jetzt werden Bewegungspakete per instanceof erkannt",
+        "Staff-Liste: Eigene Spielername werden nicht mehr als Rang erkannt (z.B. Spieler 'Modern' landete faelschlich als mod in der Liste)",
+        "Staff-Liste: Lange Ranglabels werden korrekt erkannt (z.B. 'co-owner' ist nicht mehr 'owner', 'trial-mod' nicht mehr 'mod')",
+        "Staff-Liste: Beim Verlassen eines Servers wird kein faelschlicher VANISH-Alarm mehr ausgeloest",
+        "Staff-Liste: Account-Pruefung akzeptiert nur noch gueltige Minecraft-Benutzernamen"
+      ]
+    },
+    {
       "title": "V1-GUI wieder im alten Panel-Style",
       "tags": [
         "geaendert"
