@@ -651,7 +651,7 @@ async function handle(req, res) {
     const headers = {
       "Content-Type": "application/octet-stream",
       "Accept-Ranges": "bytes",
-      "Content-Disposition": 'attachment; filename="Apfel Launcher ' + (version ? version + " " : "") + '.exe"',
+      "Content-Disposition": 'attachment; filename="Apfel Launcher' + (version ? " " + version : "") + '.exe"',
       ETag: etag,
       "Cache-Control": "no-cache",
       "Access-Control-Allow-Origin": "*",
