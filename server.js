@@ -612,7 +612,12 @@ async function handle(req, res) {
     for (const [username, seenAt] of onlinePresence) {
       if (seenAt < cutoff) onlinePresence.delete(username);
     }
-    return send(res, 200, { ok: true, onlineUsers: onlinePresence.size });
+    // Namen fuer die klickbare Online-Liste im Launcher.
+    return send(res, 200, {
+      ok: true,
+      onlineUsers: onlinePresence.size,
+      names: Array.from(onlinePresence.keys()).slice(0, 50),
+    });
   }
 
   if (req.method === "GET" && p === "/api/version") {
@@ -646,7 +651,7 @@ async function handle(req, res) {
     const headers = {
       "Content-Type": "application/octet-stream",
       "Accept-Ranges": "bytes",
-      "Content-Disposition": 'attachment; filename="' + LAUNCHER_DOWNLOAD_NAME + '"',
+      "Content-Disposition": 'attachment; filename="Apfel Launcher ' + (version ? version + " " : "") + '.exe"',
       ETag: etag,
       "Cache-Control": "no-cache",
       "Access-Control-Allow-Origin": "*",

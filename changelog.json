@@ -1,6 +1,27 @@
 {
   "entries": [
     {
+      "title": "Inject ohne Pfad-Eingabe, Online-Liste und aufgeraeumtes Admin-Panel",
+      "tags": [
+        "neu",
+        "geaendert",
+        "behoben"
+      ],
+      "version": "1.1.17",
+      "date": "2026-10-31",
+      "fixed": [
+        "Inject: Der Mods-Ordner wird jetzt automatisch aus der laufenden Minecraft-Installation erkannt (--gameDir) - das Pfad-Feld muss nicht mehr manuell ausgefuellt werden; fehlt die JAR, gibt es jetzt eine klare Meldung statt 'kein Status vom Agent'",
+        "Inject-Fehlermeldungen zeigen jetzt die echte Java-Ausgabe statt interner JavaScript-Stackzeilen, die den eigentlichen Grund verdeckt haben"
+      ],
+      "changed": [
+        "Online-Anzeige im Header ist jetzt anklickbar und zeigt eine Liste, wer gerade online ist",
+        "Ankündigungen komplett aus dem Launcher entfernt (keine Pfad-Anzeigen mehr)",
+        "Admin-Panel uebersichtlicher: mehr Abstand zwischen den Karten und Feldern",
+        "Der Launcher-Download traegt jetzt die Version im Dateinamen (z.B. 'Apfel Launcher 1.1.17.exe')",
+        "Hintergrund leicht neu gestaltet"
+      ]
+    },
+    {
       "title": "Inject behoben: Mod-Laden im laufenden Minecraft funktioniert wieder",
       "tags": [
         "behoben"
