@@ -1,6 +1,23 @@
 {
   "entries": [
     {
+      "title": "Updates-Tab und Inject entfernt, Profil-Anzeige repariert",
+      "tags": [
+        "geaendert",
+        "behoben"
+      ],
+      "version": "1.1.18",
+      "date": "2026-10-31",
+      "fixed": [
+        "Mod & Profile: Die Profil-Auswahl blieb komplett leer - sie zeigt jetzt sofort 'Suche Profile ...' und beim erneuten Oeffnen des Tabs wird neu gescannt",
+        "Profil-Scan erkennt jetzt zusaetzlich Standard-Minecraft (.minecraft) und CurseForge, nicht nur NoRisk und Modrinth"
+      ],
+      "changed": [
+        "Updates-Tab komplett entfernt",
+        "Inject-Funktion komplett entfernt - die Mod wird wie ueblich ueber den Mods-Ordner des Profils geladen (Mod installieren, Spiel neu starten)"
+      ]
+    },
+    {
       "title": "Inject ohne Pfad-Eingabe, Online-Liste und aufgeraeumtes Admin-Panel",
       "tags": [
         "neu",
