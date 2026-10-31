@@ -67,6 +67,26 @@ function newerVer(a, b) {
   return false;
 }
 
+// Changelog-Config (Admin-Edits + geloeschte Versionen) aus der DB laden.
+// Selbstheilung: Enthaelt die "deleted"-Liste mehr als die Haelfte der aktuell
+// existierenden Versionen, wurde sie nie bewusst gesetzt (wer die komplette
+// Changelog verstecken wollte, wuerde die changelog.json loeschen) - solche
+// Testmuell-Reste werden beim naechsten Zugriff automatisch zurueckgesetzt.
+async function loadChangelogConfig() {
+  const config = (await store.getSetting("changelog")) || { edits: {}, deleted: [] };
+  config.edits = config.edits || {};
+  if (!Array.isArray(config.deleted)) config.deleted = [];
+  try {
+    const existing = readChangelog().map((e) => e.version);
+    const hits = config.deleted.filter((v) => existing.indexOf(v) !== -1).length;
+    if (existing.length > 0 && hits > existing.length / 2) {
+      config.deleted = [];
+      await store.saveSetting("changelog", config);
+    }
+  } catch (e) {}
+  return config;
+}
+
 let modMetaCache = { mtime: 0, size: 0, sha1: "" };
 
 function modMeta(st) {
@@ -824,7 +844,7 @@ async function handle(req, res) {
 
   // Changelog (oeffentlich) + "gesehen"-Markierung
   if (req.method === "GET" && p === "/api/changelog") {
-    const config = (await store.getSetting("changelog")) || { edits: {}, deleted: [] };
+    const config = await loadChangelogConfig();
     const edited = config.edits || {};
     const deleted = new Set(config.deleted || []);
     const all = readChangelog().filter((e) => !deleted.has(e.version)).map((e) => edited[e.version] || e);
@@ -1070,10 +1090,18 @@ async function handle(req, res) {
     return send(res, 200, { ok: true, username, password, licenseType: type });
   }
 
-  if (req.method === "POST" && (p === "/api/admin/changelog/save" || p === "/api/admin/changelog/delete")) {
+  if (req.method === "POST" && (p === "/api/admin/changelog/save" || p === "/api/admin/changelog/delete" || p === "/api/admin/changelog/restore")) {
+    // restore: geloeschte Versionen zuruecksetzen (alle wieder sichtbar).
+    if (p.endsWith("/restore")) {
+      const cfg = (await store.getSetting("changelog")) || { edits: {}, deleted: [] };
+      cfg.edits = cfg.edits || {};
+      cfg.deleted = [];
+      await store.saveSetting("changelog", cfg);
+      return send(res, 200, { ok: true });
+    }
     const version = String(body.version || "").trim();
     if (!/^\d+(?:\.\d+){1,3}$/.test(version)) return send(res, 400, { ok: false, error: "BAD_INPUT" });
-    const config = (await store.getSetting("changelog")) || { edits: {}, deleted: [] };
+    const config = await loadChangelogConfig();
     config.edits = config.edits || {};
     config.deleted = Array.isArray(config.deleted) ? config.deleted : [];
     if (p.endsWith("/delete")) {
