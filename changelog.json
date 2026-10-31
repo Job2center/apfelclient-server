@@ -1,6 +1,18 @@
 {
   "entries": [
     {
+      "title": "Inject behoben: Mod-Laden im laufenden Minecraft funktioniert wieder",
+      "tags": [
+        "behoben"
+      ],
+      "version": "1.1.16",
+      "date": "2026-10-30",
+      "fixed": [
+        "Inject schlug fehl mit 'Command failed ... app.asar\\assets\\apfel-injector.jar': in der gepackten App liegt die Injector-JAR im asar-Archiv, das das externe java.exe nicht lesen kann; sie wird jetzt vor dem Aufruf in einen Temp-Ordner entpackt und nur noch mit echten Dateipfaden gearbeitet",
+        "Inject-Fehlermeldungen werden nicht mehr auf 240 Zeichen abgeschnitten; die vollstaendige Java-Fehlerausgabe ist jetzt sichtbar"
+      ]
+    },
+    {
       "title": "HitBox-Slider wirkt jetzt, NoMissDelay entfernt, GUI Drag & Drop",
       "tags": [
         "geaendert",
