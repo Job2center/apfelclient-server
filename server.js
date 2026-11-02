@@ -779,8 +779,8 @@ async function handle(req, res) {
   }
 
   if (req.method === "POST" && p === "/api/presence") {
-    if (body.active === false) onlinePresence.delete(me);
-    else onlinePresence.set(me, Date.now());
+    if (body.active === false) onlinePresence.delete(me.username);
+    else onlinePresence.set(me.username, Date.now());
     return send(res, 200, { ok: true });
   }
 
