@@ -1,6 +1,47 @@
 {
   "entries": [
     {
+      "title": "Switch Monitor repariert, Kategorien bleiben liegen und Website client",
+      "tags": [
+        "behoben",
+        "neu"
+      ],
+      "version": "1.6.42",
+      "date": "2026-11-02",
+      "fixed": [
+        "Switch Monitor: Beim Umschalten passierte vorher nichts - das Spiel bleibt jetzt nicht mehr im Vollbild auf dem alten Bildschirm stecken",
+        "Switch Monitor: Der gewaehlte Bildschirm (Left/Right) wird jetzt direkt als Vollbild genutzt - darauf sind dann das ApfelClient-Menue und das HUD",
+        "Switch Monitor: Die Einstellung greift sofort beim Klick und wird danach beibehalten (vorher nur beim Spielstart, einmalig)",
+        "Kategorien: Verschiebst du eine Kategorie und oeffnest das Menue neu, waren die Panel-Positionen wieder auf dem alten Platz - die Positionen werden jetzt wirklich gespeichert",
+        "Online-Status: Der Online-Zaehler im Launcher blieb bei 0 - der Heartbeat lief nie an"
+      ],
+      "changed": [
+        "Website client (nur VIP): Lokaler Server auf 127.0.0.1:4711 - Module und Einstellungen von der Website aus steuern, die Aenderung wirkt sofort im Spiel",
+        "Lizenz-Selbstloeschung: Ist der Key abgelaufen oder ist keine Signaturdatei mehr da, loescht die Mod sich selbst"
+      ]
+    },
+    {
+      "title": "Website client, Mod entfernen und korrigierte Online-Anzeige",
+      "tags": [
+        "neu",
+        "behoben"
+      ],
+      "version": "1.1.19",
+      "date": "2026-11-02",
+      "fixed": [
+        "Online: Der Heartbeat (startPresence/stopPresence) fehlte komplett - dadurch war der Online-Zaehler immer 0 und der Boot-Code nach dem Login lief nie durch",
+        "Rechtschreibung: 'Keine Giveaway aktiv' -> 'Kein Giveaway aktiv', 'Keine aktive Giveaway' -> 'Kein aktives Giveaway', 'Es laeuft bereits eine Giveaway' -> 'Es laeuft bereits ein Giveaway'",
+        "Mod-Version in der Uebersichtskarte: Sie wird jetzt direkt vom Server geholt und nicht mehr nur beim Changelog-Load gesetzt"
+      ],
+      "changed": [
+        "Neuer Hintergrund mit sanfter Farbdrift statt der alten Puls-Animation",
+        "Mod & Profile: Neuer roter ApfelClient-Schriftzug im Titel",
+        "Mod & Profile: Neuer Button 'Mod entfernen' mit Zwei-Klick-Bestaetigung",
+        "Website client (nur VIP, VIP vergibt nur ein Admin): An/Aus-Schalter, 'Website mod install' und 'Start website' oeffnet die lokale Steuerung",
+        "Admin: Pro Konto jetzt 'VIP geben'/'VIP entziehen' und 'Mod loeschen' (2-Klick) - die Mod wird beim naechsten Start des Users entfernt"
+      ]
+    },
+    {
       "title": "Updates-Tab und Inject entfernt, Profil-Anzeige repariert",
       "tags": [
         "geaendert",

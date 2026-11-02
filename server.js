@@ -553,9 +553,13 @@ function resetsLeft(u) {
 
 async function userView(u) {
   const notes = await store.getNotifications(u.username);
+  const vipUsers = (await store.getSetting("vipUsers")) || [];
+  const removeMod = !!(await store.getSetting("removeMod:" + u.username));
   return {
     username: u.username,
     isAdmin: !!u.isAdmin,
+    vip: vipUsers.indexOf(u.username) >= 0,
+    removeMod,
     createdAt: u.createdAt,
     lastLogin: u.lastLogin,
     hwid: u.hwid || null,
@@ -762,9 +766,16 @@ async function handle(req, res) {
       || p === "/api/presence"
       || p === "/api/announcements"
       || p === "/api/download/mod"
+      || p === "/api/mod/remove-done"
       || p === "/api/giveaway" || p === "/api/giveaway/join"
       || p.startsWith("/api/admin/"))) {
     return send(res, 401, { ok: false, error: "NO_AUTH" });
+  }
+
+  // User quittiert: entfernte Mod ist geloescht (Flag wieder aus).
+  if (req.method === "POST" && p === "/api/mod/remove-done") {
+    await store.saveSetting("removeMod:" + me.username, null);
+    return send(res, 200, { ok: true });
   }
 
   if (req.method === "POST" && p === "/api/presence") {
@@ -1056,11 +1067,13 @@ async function handle(req, res) {
 
   if (req.method === "GET" && p === "/api/admin/users") {
     const all = await store.listUsers();
+    const vipUsers = (await store.getSetting("vipUsers")) || [];
     const list = [];
     for (const u of all) {
       list.push({
         username: u.username,
         isAdmin: !!u.isAdmin,
+        vip: vipUsers.indexOf(u.username) >= 0,
         createdAt: u.createdAt,
         lastLogin: u.lastLogin,
         hwid: u.hwid || null,
@@ -1214,6 +1227,32 @@ async function handle(req, res) {
     await store.saveUser(u);
     await store.addNotification(u.username, "Your Admin access was removed.");
     return send(res, 200, { ok: true, isAdmin: false });
+  }
+
+  // ---------- VIP (nur Admins duerfen vergeben) ----------
+  // Steuert im Launcher die "Website client"-Funktion.
+  if (req.method === "POST" && p === "/api/admin/vip") {
+    const u = await store.getUser(body.username);
+    if (!u) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    const list = (await store.getSetting("vipUsers")) || [];
+    const arr = Array.isArray(list) ? list : [];
+    const want = !!body.vip;
+    const idx = arr.indexOf(u.username);
+    if (want && idx < 0) arr.push(u.username);
+    if (!want && idx >= 0) arr.splice(idx, 1);
+    await store.saveSetting("vipUsers", arr);
+    return send(res, 200, { ok: true, vip: want });
+  }
+
+  // ---------- Mod remote loeschen (nur Admins) ----------
+  // Setzt ein Flag; der Launcher des Users loescht die Mod beim naechsten
+  // Start/Intervall selbst und quittiert mit /api/mod/remove-done.
+  if (req.method === "POST" && p === "/api/admin/remove-mod") {
+    const u = await store.getUser(body.username);
+    if (!u) return send(res, 400, { ok: false, error: "BAD_INPUT" });
+    await store.saveSetting("removeMod:" + u.username, true);
+    await store.addNotification(u.username, "Your ApfelClient mod was removed by an Admin.");
+    return send(res, 200, { ok: true });
   }
 
   // ---------- Announcements (verwalten) ----------
