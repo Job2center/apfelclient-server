@@ -1,6 +1,19 @@
 {
   "entries": [
     {
+      "title": "Website-Modus sperrt das Ingame-Menue, 67JumpCircles umbenannt",
+      "tags": [
+        "behoben",
+        "geaendert"
+      ],
+      "version": "1.6.43",
+      "date": "2026-11-03",
+      "fixed": [
+        "Website-Modus: Rechte Shift konnte immer noch das Ingame-Menue oeffnen - im Website-Modus wird die Taste jetzt komplett gesperrt (Shift-Hook, Keybind-Dispatch, Direkt-Open bei offenem Screen, Steal-Back und .apfelmenu); die Website ist das GUI",
+        "67-Branding: Das Base-Modul hiess '67JumpCircles' mit der Beschreibung 'Stamps a glowing 67 on the ground when you jump' - jetzt 'JumpCircles' mit Beschreibung ohne 67 (auch auf der Website so sichtbar)"
+      ]
+    },
+    {
       "title": "Switch Monitor repariert, Kategorien bleiben liegen und Website client",
       "tags": [
         "behoben",
