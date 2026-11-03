@@ -1,6 +1,19 @@
 {
   "entries": [
     {
+      "title": "Website: Rechtsklick öffnet Settings, Picker direkt sichtbar",
+      "tags": [
+        "behoben",
+        "geaendert"
+      ],
+      "version": "1.6.48",
+      "date": "2026-11-03",
+      "fixed": [
+        "Website: Rechtsklick auf ein Modul öffnet jetzt die Einstellungen (außerdem Pfeil-Klick wie bisher)",
+        "Website: Block-/Entity-ESP Picker wird direkt unter dem Setting angezeigt (kein separater Toggle mehr, Kacheln zuverlässig anklickbar)"
+      ]
+    },
+    {
       "title": "Website Block-Picker funktionsfähig",
       "tags": [
         "behoben"
