@@ -1,6 +1,30 @@
 {
   "entries": [
     {
+      "title": "Start-Crash durch veraltete Mixin-Config behoben",
+      "tags": [
+        "behoben"
+      ],
+      "version": "1.6.50",
+      "date": "2026-11-03",
+      "fixed": [
+        "Fabric registriert nur noch die aktive 67test-Mixin-Config; der veraltete apfel.mixins.json-Verweis auf ein nicht vorhandenes ShaderSkyWorldRendererMixin ist entfernt",
+        "Der Fix greift auch im Website-Modus, da dieser dieselbe Client-Initialisierung verwendet"
+      ]
+    },
+    {
+      "title": "Shader Sky Mixin-Fix: Crash beim Start behoben",
+      "tags": [
+        "behoben"
+      ],
+      "version": "1.6.49",
+      "date": "2026-11-03",
+      "fixed": [
+        "Shader Sky: Mixin-Klasse war im falschen Paket (dev.apfel.mixin statt dev.sixseven.mixin) - Crash beim Spielstart behoben",
+        "Shader Sky: Mixin-Eintrag in apfel.mixins.json korrigiert (Paket-Pfad passt jetzt)"
+      ]
+    },
+    {
       "title": "Shader Sky Modul mit Aurora/Goobaa/Snow/Sky/Star/Glow Modi",
       "tags": [
         "neu",
