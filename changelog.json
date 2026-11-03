@@ -1,6 +1,19 @@
 {
   "entries": [
     {
+      "title": "Website compakter mit Block-Picker",
+      "tags": [
+        "geaendert",
+        "design"
+      ],
+      "version": "1.6.46",
+      "date": "2026-11-03",
+      "fixed": [
+        "Website: Kompakteres Design (kleinere Karten, Switches, Abstände, mehr auf dem Bildschirm)",
+        "Website: Block-/Entity-ESP Listen als Kachel-Picker zum Antippen (wie im Ingame-GUI), Farbe und An/Aus sichtbar"
+      ]
+    },
+    {
       "title": "Website-Überarbeitung: schöner und übersichtlicher",
       "tags": [
         "geaendert",
