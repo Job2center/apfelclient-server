@@ -1,6 +1,19 @@
 {
   "entries": [
     {
+      "title": "Titelbildschirm und Serverliste im SoberClient-Stil",
+      "tags": [
+        "geaendert",
+        "design"
+      ],
+      "version": "1.6.49",
+      "date": "2026-11-03",
+      "fixed": [
+        "Titelbildschirm: Scatter-Props, Globe-Effekt, moderne Karten-Buttons, Account-Anzeige und Fade-Animation wie bei SoberClient",
+        "Serverliste: Eigener custom Multiplayer-Screen mit dunklen Karten, Server-Einträgen mit Ping und Hover-Effekten"
+      ]
+    },
+    {
       "title": "Website: Rechtsklick öffnet Settings, Picker direkt sichtbar",
       "tags": [
         "behoben",
