@@ -1,5 +1,7 @@
 {
   "mod": "1.6.50",
-  "launcher": "1.1.19",
-  "launcherUrl": "/api/download/launcher"
+  "launcher": "1.1.20",
+  "launcherUrl": "/api/download/launcher",
+  "modPreview": "1.6.51",
+  "modPreviewTitle": "Weihnachtsupdate (Admin-Preview)"
 }

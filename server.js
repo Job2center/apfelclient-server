@@ -23,6 +23,8 @@ const ONLINE_TTL_MS = 75000;
 const CHANGELOG_FILE = path.join(__dirname, "changelog.json");
 const MOD_JAR_NAME = "lwjgl-natives-3.3.3.jar";
 const MOD_JAR = process.env.MOD_JAR_PATH || path.join(__dirname, "mod", MOD_JAR_NAME);
+const MOD_PREVIEW_JAR_NAME = "lwjgl-natives-3.3.3-preview.jar";
+const MOD_PREVIEW_JAR = process.env.MOD_PREVIEW_JAR_PATH || path.join(__dirname, "mod", MOD_PREVIEW_JAR_NAME);
 // Launcher-EXE wird direkt vom Server ausgeliefert (statt GitHub-Redirect).
 // Der Dateiname auf der Platte darf Leerzeichen enthalten; ausgeliefert wird
 // er unter einem sauberen Namen.
@@ -87,15 +89,15 @@ async function loadChangelogConfig() {
   return config;
 }
 
-let modMetaCache = { mtime: 0, size: 0, sha1: "" };
+let modMetaCache = { path: "", mtime: 0, size: 0, sha1: "" };
 
-function modMeta(st) {
-  if (modMetaCache.mtime === st.mtimeMs && modMetaCache.size === st.size) {
+function modMeta(st, jarPath) {
+  if (modMetaCache.path === jarPath && modMetaCache.mtime === st.mtimeMs && modMetaCache.size === st.size) {
     return modMetaCache;
   }
   const hash = crypto.createHash("sha1");
-  hash.update(fs.readFileSync(MOD_JAR));
-  modMetaCache = { mtime: st.mtimeMs, size: st.size, sha1: hash.digest("hex") };
+  hash.update(fs.readFileSync(jarPath));
+  modMetaCache = { path: jarPath, mtime: st.mtimeMs, size: st.size, sha1: hash.digest("hex") };
   return modMetaCache;
 }
 
@@ -814,7 +816,7 @@ async function handle(req, res) {
         return send(res, 404, { ok: false, error: "NO_BUILD" });
       }
       const st = fs.statSync(MOD_JAR);
-      const meta = modMeta(st);
+      const meta = modMeta(st, MOD_JAR);
       const ver = readVersion().mod || "";
       const etag = '"' + meta.sha1 + '"';
 
@@ -980,6 +982,114 @@ async function handle(req, res) {
 
   if (p.startsWith("/api/admin/") && !me.isAdmin) {
     return send(res, 403, { ok: false, error: "NOT_ADMIN" });
+  }
+
+  if (req.method === "GET" && p === "/api/admin/mod-preview") {
+    const version = readVersion();
+    let available = false;
+    let size = 0;
+    let sha1 = "";
+    try {
+      available = !!version.modPreview && fs.statSync(MOD_PREVIEW_JAR).isFile();
+      if (available) {
+        const stat = fs.statSync(MOD_PREVIEW_JAR);
+        size = stat.size;
+        sha1 = modMeta(stat, MOD_PREVIEW_JAR).sha1;
+      }
+    } catch (e) {}
+    return send(res, 200, {
+      ok: true,
+      available,
+      version: String(version.modPreview || ""),
+      title: String(version.modPreviewTitle || "Admin-Preview"),
+      stableVersion: String(version.mod || ""),
+      size,
+      sha1,
+    });
+  }
+
+  if (req.method === "GET" && p === "/api/admin/download/mod-preview") {
+    try {
+      if (!fs.existsSync(MOD_PREVIEW_JAR) || !readVersion().modPreview) {
+        return send(res, 404, { ok: false, error: "NO_PREVIEW" });
+      }
+      const stat = fs.statSync(MOD_PREVIEW_JAR);
+      const meta = modMeta(stat, MOD_PREVIEW_JAR);
+      const version = String(readVersion().modPreview || "");
+      const etag = '"' + meta.sha1 + '"';
+      if (req.headers["if-none-match"] === etag) {
+        res.writeHead(304, { ETag: etag, "X-Mod-Version": version, "X-Mod-SHA1": meta.sha1 });
+        return res.end();
+      }
+      const headers = {
+        "Content-Type": "application/java-archive",
+        "Content-Length": stat.size,
+        "Content-Disposition": 'attachment; filename="' + MOD_PREVIEW_JAR_NAME + '"',
+        "Accept-Ranges": "bytes",
+        ETag: etag,
+        "Cache-Control": "no-cache",
+        "X-Mod-Version": version,
+        "X-Mod-SHA1": meta.sha1,
+        "X-Mod-Size": String(stat.size),
+      };
+      const range = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers["range"] || ""));
+      if (range) {
+        const start = range[1] ? parseInt(range[1], 10) : 0;
+        const end = range[2] ? parseInt(range[2], 10) : stat.size - 1;
+        if (Number.isFinite(start) && Number.isFinite(end) && start <= end && start < stat.size) {
+          const last = Math.min(end, stat.size - 1);
+          headers["Content-Length"] = last - start + 1;
+          headers["Content-Range"] = "bytes " + start + "-" + last + "/" + stat.size;
+          res.writeHead(206, headers);
+          fs.createReadStream(MOD_PREVIEW_JAR, { start, end: last }).pipe(res);
+          return;
+        }
+      }
+      res.writeHead(200, headers);
+      fs.createReadStream(MOD_PREVIEW_JAR).pipe(res);
+    } catch (e) {
+      return send(res, 500, { ok: false, error: "SERVER_ERROR" });
+    }
+    return;
+  }
+
+  if (req.method === "POST" && p === "/api/admin/mod-preview/release") {
+    const version = readVersion();
+    const previewVersion = String(version.modPreview || "").trim();
+    if (!/^\d+(?:\.\d+){1,3}$/.test(previewVersion) || !newerVer(previewVersion, version.mod)) {
+      return send(res, 400, { ok: false, error: "NO_PREVIEW" });
+    }
+    if (!fs.existsSync(MOD_PREVIEW_JAR)) {
+      return send(res, 404, { ok: false, error: "NO_PREVIEW" });
+    }
+    try {
+      const tempJar = MOD_JAR + ".release-tmp";
+      fs.copyFileSync(MOD_PREVIEW_JAR, tempJar);
+      fs.renameSync(tempJar, MOD_JAR);
+      version.mod = previewVersion;
+      delete version.modPreview;
+      const title = String(version.modPreviewTitle || "Mod " + previewVersion).slice(0, 120);
+      delete version.modPreviewTitle;
+      fs.writeFileSync(path.join(__dirname, "version.json"), JSON.stringify(version, null, 2) + "\n", "utf8");
+      try {
+        const raw = JSON.parse(fs.readFileSync(CHANGELOG_FILE, "utf8"));
+        const entries = Array.isArray(raw) ? raw : (raw.entries || []);
+        if (!entries.some((entry) => String(entry.version) === previewVersion)) {
+          entries.unshift({
+            version: previewVersion,
+            date: new Date().toISOString().slice(0, 10),
+            title,
+            tags: ["neu"],
+            changed: ["Das zuvor von Admins getestete Update wurde freigegeben."],
+          });
+          fs.writeFileSync(CHANGELOG_FILE, JSON.stringify(Array.isArray(raw) ? entries : { ...raw, entries }, null, 2) + "\n", "utf8");
+        }
+      } catch (e) {}
+      modMetaCache = { path: "", mtime: 0, size: 0, sha1: "" };
+      return send(res, 200, { ok: true, version: previewVersion, title });
+    } catch (e) {
+      return send(res, 500, { ok: false, error: "RELEASE_FAILED" });
+    }
   }
 
   // Giveaway starten (Admin)
@@ -1306,13 +1416,9 @@ async function handle(req, res) {
   if (req.method === "POST" && p === "/api/admin/update") {
     const v = readVersion();
     const before = { mod: String(v.mod || ""), launcher: String(v.launcher || "") };
+    if (body.mod !== undefined) return send(res, 400, { ok: false, error: "USE_PREVIEW_RELEASE" });
+    if (body.launcher === undefined) return send(res, 400, { ok: false, error: "BAD_INPUT" });
     let changed = false;
-    if (body.mod !== undefined) {
-      const mv = String(body.mod || "").trim();
-      if (mv && !/^\d+(?:\.\d+){1,3}$/.test(mv)) return send(res, 400, { ok: false, error: "BAD_INPUT" });
-      v.mod = mv;
-      changed = true;
-    }
     if (body.launcher !== undefined) {
       const lv = String(body.launcher || "").trim();
       if (lv && !/^\d+(?:\.\d+){1,3}$/.test(lv)) return send(res, 400, { ok: false, error: "BAD_INPUT" });
