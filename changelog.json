@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "title": "Website-Überarbeitung: schöner und übersichtlicher",
+      "tags": [
+        "geaendert",
+        "design"
+      ],
+      "version": "1.6.45",
+      "date": "2026-11-03",
+      "fixed": [
+        "Website: Neue Karten-Ansicht für Module mit größeren Switches, Kategorien mit Anzahl, bessere Verbindung-Anzeige und Toasts bei Änderungen",
+        "Website: Einstellungen (Slider, Mode, Key, Block/Entity-Listen) in sauberer Box mit Farbakzenten",
+        "Website: Suche bleibt erhalten, leere Kategorien werden ausgeblendet, Responsive für kleine Bildschirme"
+      ]
+    },
+    {
       "title": "Website: lesbare Block-Listen und ruhige Modulliste",
       "tags": [
         "behoben",
