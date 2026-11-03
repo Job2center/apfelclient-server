@@ -1,6 +1,18 @@
 {
   "entries": [
     {
+      "title": "Website Block-Picker funktionsfähig",
+      "tags": [
+        "behoben"
+      ],
+      "version": "1.6.47",
+      "date": "2026-11-03",
+      "fixed": [
+        "Website: Block-/Entity-ESP Picker speicherte Auswahl nicht (fromJson fehlte) — jetzt werden An/Aus und Farben der Kacheln ins Spiel übernommen",
+        "Website: Picker sendet sauberes JSON-Array statt String"
+      ]
+    },
+    {
       "title": "Website compakter mit Block-Picker",
       "tags": [
         "geaendert",
