@@ -1,6 +1,22 @@
 {
   "entries": [
     {
+      "title": "Weihnachtsupdate: Sky-Shader entfernt, Title-Screen und GUI repariert",
+      "tags": [
+        "behoben",
+        "geaendert"
+      ],
+      "version": "1.6.56",
+      "date": "2026-11-03",
+      "changed": [
+        "Shader Sky und Atmosphere samt Render-Hooks und Shaderdateien entfernt; Vanilla-Himmel bleibt aktiv"
+      ],
+      "fixed": [
+        "Title-Screen hat jetzt einen nativen DrawContext-Fallback, wenn NanoVG nicht rendert",
+        "Right-Shift öffnet das Click-GUI jetzt auch auf dem Apfel-Titelbildschirm und weiterhin im Spiel"
+      ]
+    },
+    {
       "title": "Start-Crash durch veraltete Mixin-Config behoben",
       "tags": [
         "behoben"
