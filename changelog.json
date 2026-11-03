@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "title": "Shader Sky Modul mit Aurora/Goobaa/Snow/Sky/Star/Glow Modi",
+      "tags": [
+        "neu",
+        "geaendert"
+      ],
+      "version": "1.6.49",
+      "date": "2026-11-03",
+      "fixed": [
+        "Shader Sky: Neues Modul mit echten GLSL-Shadern über RenderPipeline (nicht NanoVG)",
+        "Shader Sky: 6 Modi - Aurora, Goobaa, Snow, Sky, Star, Glow mit konfigurierbaren Farben und Einstellungen",
+        "Shader Sky: Color Mode (Theme/Custom), Strength, Speed, Scale, Stars, Vanilla Sky Schalter"
+      ]
+    },
+    {
       "title": "Website: Rechtsklick öffnet Settings, Picker direkt sichtbar",
       "tags": [
         "behoben",
