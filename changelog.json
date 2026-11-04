@@ -1,6 +1,21 @@
 {
   "entries": [
     {
+      "title": "TriggerBot mit Abstands-Filter (3-4 Blöcke)",
+      "tags": [
+        "neu",
+        "geaendert"
+      ],
+      "version": "1.6.50",
+      "date": "2026-11-04",
+      "fixed": [
+        "TriggerBot: Neues Modul im COMBAT-Tab. Trifft automatisch Ziele im Fadenkreuz an.",
+        "TriggerBot: Abstands-Filter einstellbar (Min/Max Blocks, Standard 3-4 Blöcke).",
+        "TriggerBot: Filter für Spieler, Mobs oder Tiere ein-/ausschaltbar.",
+        "TriggerBot: Ein-Tick-Cooldown verhindert zu schnelles Spammen."
+      ]
+    },
+    {
       "title": "Website: Rechtsklick öffnet Settings, Picker direkt sichtbar",
       "tags": [
         "behoben",
