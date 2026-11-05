@@ -34,12 +34,12 @@
       "version": "1.6.46",
       "date": "2026-11-03",
       "fixed": [
-        "Website: Kompakteres Design (kleinere Karten, Switches, Abstände, mehr auf dem Bildschirm)",
+        "Website: Kompakteres Design (kleinere Karten, Switches, AbstÃ¤nde, mehr auf dem Bildschirm)",
         "Website: Block-/Entity-ESP Listen als Kachel-Picker zum Antippen (wie im Ingame-GUI), Farbe und An/Aus sichtbar"
       ]
     },
     {
-      "title": "Website-Überarbeitung: schöner und übersichtlicher",
+      "title": "Website-Ãœberarbeitung: schÃ¶ner und Ã¼bersichtlicher",
       "tags": [
         "geaendert",
         "design"
@@ -47,9 +47,9 @@
       "version": "1.6.45",
       "date": "2026-11-03",
       "fixed": [
-        "Website: Neue Karten-Ansicht für Module mit größeren Switches, Kategorien mit Anzahl, bessere Verbindung-Anzeige und Toasts bei Änderungen",
+        "Website: Neue Karten-Ansicht fÃ¼r Module mit grÃ¶ÃŸeren Switches, Kategorien mit Anzahl, bessere Verbindung-Anzeige und Toasts bei Ã„nderungen",
         "Website: Einstellungen (Slider, Mode, Key, Block/Entity-Listen) in sauberer Box mit Farbakzenten",
-        "Website: Suche bleibt erhalten, leere Kategorien werden ausgeblendet, Responsive für kleine Bildschirme"
+        "Website: Suche bleibt erhalten, leere Kategorien werden ausgeblendet, Responsive fÃ¼r kleine Bildschirme"
       ]
     },
     {
@@ -61,7 +61,7 @@
       "version": "1.6.44",
       "date": "2026-11-03",
       "fixed": [
-        "Website: ESP-Einstellungen wie Block Entities zeigten rohe Objekt-Strings (dev.sixseven.settings.IconListSetting$Entry@...) - jetzt werden alle Einträge lesbar als Namen angezeigt, an/aus wird gedimmt dargestellt (gilt für alle Modul-Einstellungen dieser Art)"
+        "Website: ESP-Einstellungen wie Block Entities zeigten rohe Objekt-Strings (dev.sixseven.settings.IconListSetting$Entry@...) - jetzt werden alle EintrÃ¤ge lesbar als Namen angezeigt, an/aus wird gedimmt dargestellt (gilt fÃ¼r alle Modul-Einstellungen dieser Art)"
       ],
       "changed": [
         "Website: JumpCircles und ClickGUI erscheinen nicht mehr in der Modulliste"
