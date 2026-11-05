@@ -1,22 +1,7 @@
 {
   "entries": [
     {
-      "title": "TriggerBot mit Abstands-Filter (3-4 Blöcke)",
-      "tags": [
-        "neu",
-        "geaendert"
-      ],
-      "version": "1.6.50",
-      "date": "2026-11-04",
-      "fixed": [
-        "TriggerBot: Neues Modul im COMBAT-Tab. Trifft automatisch Ziele im Fadenkreuz an.",
-        "TriggerBot: Abstands-Filter einstellbar (Min/Max Blocks, Standard 3-4 Blöcke).",
-        "TriggerBot: Filter für Spieler, Mobs oder Tiere ein-/ausschaltbar.",
-        "TriggerBot: Ein-Tick-Cooldown verhindert zu schnelles Spammen."
-      ]
-    },
-    {
-      "title": "Website: Rechtsklick öffnet Settings, Picker direkt sichtbar",
+      "title": "Website-Modus sperrt das Ingame-Menue, 67JumpCircles umbenannt",
       "tags": [
         "behoben",
         "geaendert"
@@ -24,19 +9,19 @@
       "version": "1.6.48",
       "date": "2026-11-03",
       "fixed": [
-        "Website: Rechtsklick auf ein Modul öffnet jetzt die Einstellungen (außerdem Pfeil-Klick wie bisher)",
-        "Website: Block-/Entity-ESP Picker wird direkt unter dem Setting angezeigt (kein separater Toggle mehr, Kacheln zuverlässig anklickbar)"
+        "Website: Rechtsklick auf ein Modul offnet jetzt die Einstellungen (auerdem Pfeil-Klick wie bisher)",
+        "Website: Block-/Entity-ESP Picker wird direkt unter dem Setting angezeigt (kein separater Toggle mehr, Kacheln zuverlassig anklickbar)"
       ]
     },
     {
-      "title": "Website Block-Picker funktionsfähig",
+      "title": "Website Block-Picker funktionsfhig",
       "tags": [
         "behoben"
       ],
       "version": "1.6.47",
       "date": "2026-11-03",
       "fixed": [
-        "Website: Block-/Entity-ESP Picker speicherte Auswahl nicht (fromJson fehlte) — jetzt werden An/Aus und Farben der Kacheln ins Spiel übernommen",
+        "Website: Block-/Entity-ESP Picker speicherte Auswahl nicht (fromJson fehlte)  jetzt werden An/Aus und Farben der Kacheln ins Spiel ubernommen",
         "Website: Picker sendet sauberes JSON-Array statt String"
       ]
     },
@@ -76,43 +61,10 @@
       "version": "1.6.44",
       "date": "2026-11-03",
       "fixed": [
-        "Website: ESP-Einstellungen wie 'Block Entities' zeigten rohe Objekt-Strings (dev.sixseven.settings.IconListSetting$Entry@...) - jetzt werden alle Eintraege lesbar als Namen angezeigt, an/aus wird gedimmt dargestellt (gilt fuer alle Modul-Einstellungen dieser Art)"
+        "Website: ESP-Einstellungen wie Block Entities zeigten rohe Objekt-Strings (dev.sixseven.settings.IconListSetting$Entry@...) - jetzt werden alle Einträge lesbar als Namen angezeigt, an/aus wird gedimmt dargestellt (gilt für alle Modul-Einstellungen dieser Art)"
       ],
       "changed": [
         "Website: JumpCircles und ClickGUI erscheinen nicht mehr in der Modulliste"
-      ]
-    },
-    {
-      "title": "Website-Modus sperrt das Ingame-Menue, 67JumpCircles umbenannt",
-      "tags": [
-        "behoben",
-        "geaendert"
-      ],
-      "version": "1.6.43",
-      "date": "2026-11-03",
-      "fixed": [
-        "Website-Modus: Rechte Shift konnte immer noch das Ingame-Menue oeffnen - im Website-Modus wird die Taste jetzt komplett gesperrt (Shift-Hook, Keybind-Dispatch, Direkt-Open bei offenem Screen, Steal-Back und .apfelmenu); die Website ist das GUI",
-        "67-Branding: Das Base-Modul hiess '67JumpCircles' mit der Beschreibung 'Stamps a glowing 67 on the ground when you jump' - jetzt 'JumpCircles' mit Beschreibung ohne 67 (auch auf der Website so sichtbar)"
-      ]
-    },
-    {
-      "title": "Switch Monitor repariert, Kategorien bleiben liegen und Website client",
-      "tags": [
-        "behoben",
-        "neu"
-      ],
-      "version": "1.6.42",
-      "date": "2026-11-02",
-      "fixed": [
-        "Switch Monitor: Beim Umschalten passierte vorher nichts - das Spiel bleibt jetzt nicht mehr im Vollbild auf dem alten Bildschirm stecken",
-        "Switch Monitor: Der gewaehlte Bildschirm (Left/Right) wird jetzt direkt als Vollbild genutzt - darauf sind dann das ApfelClient-Menue und das HUD",
-        "Switch Monitor: Die Einstellung greift sofort beim Klick und wird danach beibehalten (vorher nur beim Spielstart, einmalig)",
-        "Kategorien: Verschiebst du eine Kategorie und oeffnest das Menue neu, waren die Panel-Positionen wieder auf dem alten Platz - die Positionen werden jetzt wirklich gespeichert",
-        "Online-Status: Der Online-Zaehler im Launcher blieb bei 0 - der Heartbeat lief nie an"
-      ],
-      "changed": [
-        "Website client (nur VIP): Lokaler Server auf 127.0.0.1:4711 - Module und Einstellungen von der Website aus steuern, die Aenderung wirkt sofort im Spiel",
-        "Lizenz-Selbstloeschung: Ist der Key abgelaufen oder ist keine Signaturdatei mehr da, loescht die Mod sich selbst"
       ]
     }
   ]
