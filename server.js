@@ -767,7 +767,6 @@ async function handle(req, res) {
       || p === "/api/change-password" || p === "/api/change-username"
       || p === "/api/presence"
       || p === "/api/announcements"
-      || p === "/api/download/mod"
       || p === "/api/mod/remove-done"
       || p === "/api/giveaway" || p === "/api/giveaway/join"
       || p.startsWith("/api/admin/"))) {
