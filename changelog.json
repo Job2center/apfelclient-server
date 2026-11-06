@@ -1,19 +1,34 @@
 {
   "entries": [
     {
-  "title": "Target HUD im Render-Tab",
-  "tags": [
-    "neu",
-    "design"
-  ],
-  "version": "1.6.49",
-  "date": "2026-11-06",
-  "fixed": [
-    "Target HUD: Neues Modul im RENDER-Tab - zeigt rechts unten am Fadenkreuz Name, Skin-Kopf, HP-Leiste, Ruestung sowie Haupthand- und Offhand-Item deines Ziels.",
-    "Target HUD: Anzeige per Schalter anpassbar (Kopf, Ruestung, Items, HP-Leiste).",
-    "GUI: Kategorie-Panels richten sich jetzt exakt an der echten Panel-Breite aus (sauber zentriert, kein Versatz)."
-  ]
-},
+      "title": "ApfelVisuals + Secret-Tab im Launcher",
+      "tags": [
+        "neu",
+        "design"
+      ],
+      "version": "1.1.21",
+      "date": "2026-11-06",
+      "fixed": [
+        "Secret-Tab: Klick auf das Apfel-Logo unten links im Mod-&-Profil-Tab oeffnet einen versteckten Winter-Bereich mit Schnee und Aurora.",
+        "ApfelVisuals: Neue Open-Source-Visuals-Mod direkt aus dem Secret-Tab herunterladbar (wird in den Downloads-Ordner gespeichert).",
+        "ApfelVisuals: Eigenes Apfel-Logo in allen GUIs, Capes-Option entfernt.",
+        "ApfelVisuals: Neue Module aus Visual Client uebernommen - Attack Indicator, Jump Circles und Halo."
+      ]
+    },
+    {
+      "title": "Target HUD im Render-Tab",
+      "tags": [
+        "neu",
+        "design"
+      ],
+      "version": "1.6.49",
+      "date": "2026-11-06",
+      "fixed": [
+        "Target HUD: Neues Modul im RENDER-Tab - zeigt rechts unten am Fadenkreuz Name, Skin-Kopf, HP-Leiste, Ruestung sowie Haupthand- und Offhand-Item deines Ziels.",
+        "Target HUD: Anzeige per Schalter anpassbar (Kopf, Ruestung, Items, HP-Leiste).",
+        "GUI: Kategorie-Panels richten sich jetzt exakt an der echten Panel-Breite aus (sauber zentriert, kein Versatz)."
+      ]
+    },
     {
       "title": "Website-Modus sperrt das Ingame-Menue, 67JumpCircles umbenannt",
       "tags": [

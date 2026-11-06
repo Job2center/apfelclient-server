@@ -1,5 +1,6 @@
 {
   "mod": "1.6.49",
-  "launcher": "1.1.20",
-  "launcherUrl": "/api/download/launcher"
+  "launcher": "1.1.21",
+  "launcherUrl": "/api/download/launcher",
+  "visuals": "1.0.0"
 }

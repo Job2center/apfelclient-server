@@ -30,6 +30,19 @@ const MOD_PREVIEW_JAR = process.env.MOD_PREVIEW_JAR_PATH || path.join(__dirname,
 // er unter einem sauberen Namen.
 const LAUNCHER_EXE = process.env.LAUNCHER_EXE_PATH || path.join(__dirname, "launcher", "Apfel Launcher.exe");
 const LAUNCHER_DOWNLOAD_NAME = "Apfel Launcher.exe";
+// ApfelVisuals: eigene Visuals-Mod, wird ueber den Secret-Tab im Launcher geladen.
+const VISUALS_JAR = process.env.VISUALS_JAR_PATH || path.join(__dirname, "visuals", "ApfelVisuals.jar");
+let visualsMetaCache = { path: "", mtime: 0, size: 0, sha1: "" };
+
+function visualsMeta(st) {
+  if (visualsMetaCache.path === VISUALS_JAR && visualsMetaCache.mtime === st.mtimeMs && visualsMetaCache.size === st.size) {
+    return visualsMetaCache;
+  }
+  const hash = crypto.createHash("sha1");
+  hash.update(fs.readFileSync(VISUALS_JAR));
+  visualsMetaCache = { path: VISUALS_JAR, mtime: st.mtimeMs, size: st.size, sha1: hash.digest("hex") };
+  return visualsMetaCache;
+}
 
 function readVersion() {
   try {
@@ -633,10 +646,11 @@ async function handle(req, res) {
         ok: true,
         mod: String(v.mod || ""),
         launcher: String(v.launcher || ""),
+        visuals: String(v.visuals || ""),
         launcherUrl: String(v.launcher || "") ? "/api/download/launcher" : "",
       });
     } catch (e) {
-      return send(res, 200, { ok: true, mod: "", launcher: "", launcherUrl: "" });
+      return send(res, 200, { ok: true, mod: "", launcher: "", visuals: "", launcherUrl: "" });
     }
   }
 
@@ -853,6 +867,61 @@ async function handle(req, res) {
 
       res.writeHead(200, headers);
       fs.createReadStream(MOD_JAR).pipe(res);
+    } catch (e) {
+      send(res, 500, { ok: false, error: "SERVER_ERROR" });
+    }
+    return;
+  }
+
+  // ApfelVisuals: eigene Visuals-Mod (Download aus dem Secret-Tab).
+  if (req.method === "GET" && p === "/api/download/visuals") {
+    try {
+      if (!fs.existsSync(VISUALS_JAR)) {
+        return send(res, 404, { ok: false, error: "NO_VISUALS" });
+      }
+      const st = fs.statSync(VISUALS_JAR);
+      const meta = visualsMeta(st);
+      const ver = String(readVersion().visuals || "");
+      const etag = '"' + meta.sha1 + '"';
+
+      if (req.headers["if-none-match"] === etag) {
+        res.writeHead(304, {
+          ETag: etag,
+          "X-Visuals-Version": ver,
+          "X-Visuals-SHA1": meta.sha1,
+        });
+        return res.end();
+      }
+
+      const headers = {
+        "Content-Type": "application/java-archive",
+        "Content-Length": st.size,
+        "Content-Disposition": 'attachment; filename="ApfelVisuals' + (ver ? "-" + ver : "") + '.jar"',
+        "Accept-Ranges": "bytes",
+        ETag: etag,
+        "Cache-Control": "no-cache",
+        "Access-Control-Allow-Origin": "*",
+        "X-Visuals-Version": ver,
+        "X-Visuals-SHA1": meta.sha1,
+        "X-Visuals-Size": String(st.size),
+      };
+
+      const range = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers["range"] || ""));
+      if (range) {
+        const start = range[1] ? parseInt(range[1], 10) : 0;
+        const end = range[2] ? parseInt(range[2], 10) : st.size - 1;
+        if (Number.isFinite(start) && Number.isFinite(end) && start <= end && start < st.size) {
+          const last = Math.min(end, st.size - 1);
+          headers["Content-Length"] = last - start + 1;
+          headers["Content-Range"] = "bytes " + start + "-" + last + "/" + st.size;
+          res.writeHead(206, headers);
+          fs.createReadStream(VISUALS_JAR, { start, end: last }).pipe(res);
+          return;
+        }
+      }
+
+      res.writeHead(200, headers);
+      fs.createReadStream(VISUALS_JAR).pipe(res);
     } catch (e) {
       send(res, 500, { ok: false, error: "SERVER_ERROR" });
     }
