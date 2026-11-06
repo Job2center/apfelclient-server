@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+  "title": "Target HUD im Render-Tab",
+  "tags": [
+    "neu",
+    "design"
+  ],
+  "version": "1.6.49",
+  "date": "2026-11-06",
+  "fixed": [
+    "Target HUD: Neues Modul im RENDER-Tab - zeigt rechts unten am Fadenkreuz Name, Skin-Kopf, HP-Leiste, Ruestung sowie Haupthand- und Offhand-Item deines Ziels.",
+    "Target HUD: Anzeige per Schalter anpassbar (Kopf, Ruestung, Items, HP-Leiste).",
+    "GUI: Kategorie-Panels richten sich jetzt exakt an der echten Panel-Breite aus (sauber zentriert, kein Versatz)."
+  ]
+},
+    {
       "title": "Website-Modus sperrt das Ingame-Menue, 67JumpCircles umbenannt",
       "tags": [
         "behoben",
@@ -34,12 +48,12 @@
       "version": "1.6.46",
       "date": "2026-11-03",
       "fixed": [
-        "Website: Kompakteres Design (kleinere Karten, Switches, AbstÃ¤nde, mehr auf dem Bildschirm)",
+        "Website: Kompakteres Design (kleinere Karten, Switches, AbstÃƒÂ¤nde, mehr auf dem Bildschirm)",
         "Website: Block-/Entity-ESP Listen als Kachel-Picker zum Antippen (wie im Ingame-GUI), Farbe und An/Aus sichtbar"
       ]
     },
     {
-      "title": "Website-Ãœberarbeitung: schÃ¶ner und Ã¼bersichtlicher",
+      "title": "Website-ÃƒÅ“berarbeitung: schÃƒÂ¶ner und ÃƒÂ¼bersichtlicher",
       "tags": [
         "geaendert",
         "design"
@@ -47,9 +61,9 @@
       "version": "1.6.45",
       "date": "2026-11-03",
       "fixed": [
-        "Website: Neue Karten-Ansicht fÃ¼r Module mit grÃ¶ÃŸeren Switches, Kategorien mit Anzahl, bessere Verbindung-Anzeige und Toasts bei Ã„nderungen",
+        "Website: Neue Karten-Ansicht fÃƒÂ¼r Module mit grÃƒÂ¶ÃƒÅ¸eren Switches, Kategorien mit Anzahl, bessere Verbindung-Anzeige und Toasts bei Ãƒâ€žnderungen",
         "Website: Einstellungen (Slider, Mode, Key, Block/Entity-Listen) in sauberer Box mit Farbakzenten",
-        "Website: Suche bleibt erhalten, leere Kategorien werden ausgeblendet, Responsive fÃ¼r kleine Bildschirme"
+        "Website: Suche bleibt erhalten, leere Kategorien werden ausgeblendet, Responsive fÃƒÂ¼r kleine Bildschirme"
       ]
     },
     {
@@ -61,7 +75,7 @@
       "version": "1.6.44",
       "date": "2026-11-03",
       "fixed": [
-        "Website: ESP-Einstellungen wie Block Entities zeigten rohe Objekt-Strings (dev.sixseven.settings.IconListSetting$Entry@...) - jetzt werden alle EintrÃ¤ge lesbar als Namen angezeigt, an/aus wird gedimmt dargestellt (gilt fÃ¼r alle Modul-Einstellungen dieser Art)"
+        "Website: ESP-Einstellungen wie Block Entities zeigten rohe Objekt-Strings (dev.sixseven.settings.IconListSetting$Entry@...) - jetzt werden alle EintrÃƒÂ¤ge lesbar als Namen angezeigt, an/aus wird gedimmt dargestellt (gilt fÃƒÂ¼r alle Modul-Einstellungen dieser Art)"
       ],
       "changed": [
         "Website: JumpCircles und ClickGUI erscheinen nicht mehr in der Modulliste"
