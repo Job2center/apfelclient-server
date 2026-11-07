@@ -1,6 +1,22 @@
 {
   "entries": [
     {
+      "title": "Aufgeraeumtes Launcher-Design + Custom Title Screen",
+      "tags": [
+        "design",
+        "neu"
+      ],
+      "version": "1.1.22",
+      "date": "2026-11-07",
+      "fixed": [
+        "Launcher: Ruhigeres Interface - flacher Hintergrund, klarere Typografie, Unterstrich-Tabs und dezentere Karten statt bunter Glows.",
+        "Launcher: Secret-Zugang ist jetzt ein kleiner Chip unten links im Mod-Tab statt eines leuchtenden Buttons.",
+        "Launcher: Secret-Fenster im ruhigeren Winter-Look mit weniger Effekten und klarerem Aufbau.",
+        "ApfelVisuals 1.0.1: Neuer Custom Title Screen mit Uhr, Begruessung und vier aufgeraeumten Buttons.",
+        "ApfelVisuals 1.0.1: Halo-Modul entfernt."
+      ]
+    },
+    {
       "title": "ApfelVisuals + Secret-Tab im Launcher",
       "tags": [
         "neu",
