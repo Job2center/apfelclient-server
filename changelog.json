@@ -9,12 +9,14 @@
       "version": "1.1.22",
       "date": "2026-11-07",
       "fixed": [
+        "ApfelVisuals 1.0.3: Freelook, Freecam, Swing Speed, Swing-Animationen, China-Hat-Cosmetic und Vape-Rauch-Fix.",
         "Launcher: Ruhigeres Interface - flacher Hintergrund, klarere Typografie, Unterstrich-Tabs und dezentere Karten statt bunter Glows.",
         "Launcher: Secret-Zugang ist jetzt ein kleiner Chip unten links im Mod-Tab statt eines leuchtenden Buttons.",
         "Launcher: Secret-Fenster im ruhigeren Winter-Look mit weniger Effekten und klarerem Aufbau.",
         "ApfelVisuals 1.0.2: Custom Title Screen mit animiertem Minecraft-Panorama im Hintergrund.",
         "ApfelVisuals 1.0.2: Kompakteres, aufgeraeumtes Menue - kleinere Uhr, flache Buttons, kein Ueberlappen der Fusszeile mehr.",
-        "ApfelVisuals 1.0.2: Halo-Modul entfernt."
+        "ApfelVisuals 1.0.2: Halo-Modul entfernt.",
+        "ApfelVisuals 1.0.3: Titelbildschirm hat jetzt einen Hintergrund-Button mit sechs Bildern aus dem Visual Client."
       ]
     },
     {
